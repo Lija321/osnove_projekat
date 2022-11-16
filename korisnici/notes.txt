@@ -1,1 +1,0 @@
-koriscniko_ime|loznika|ime|prezime|email|pasos|drazavljanstvo|telefon|pol|uloga
