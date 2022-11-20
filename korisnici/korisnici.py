@@ -32,9 +32,9 @@ def proveri_email(email):
     return False, ""
 
 
-def proveri_nedostajucu_vernost(provera_podaci: dict):
+def proveri_nedostajucu_vernost(provera_podaci):
     for key, value in provera_podaci.items():
-        if value is None: return True, f"Provera za nedostajucu vrednost: {key}"
+        if value==None or value=="": return True, f"Provera za nedostajucu vrednost: {key}"
     return False, ""
 
 
@@ -61,9 +61,9 @@ ODBRANA: Baca grešku sa porukom ako podaci nisu validni.
 
 
 def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_korisnicko_ime: str,
-                      korisnicko_ime: str, lozinka: str, ime: str, prezime: str, email: str = None,
-                      pasos: str = None, drzavljanstvo: str = None,
-                      telefon: str = None, pol: str = None) -> dict:
+                      korisnicko_ime: str, lozinka: str, ime: str, prezime: str, email: str = "",
+                      pasos: str = "", drzavljanstvo: str = "",
+                      telefon: str = "", pol: str = "") -> dict:
     korisnik_podaci = {
         'ime': ime, 'prezime': prezime,
         'korisnicko_ime': korisnicko_ime, 'lozinka': lozinka,
@@ -90,6 +90,9 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         return "Uloga nije validna"
 
     if azuriraj: # obirisi sa starim imenom i prosledi novo
+        if staro_korisnicko_ime != korisnicko_ime and korisnicko_ime in svi_korisnici:
+            return "Korisničko ime je već zauzeto: očekuje se greška"
+
         identifiktor = staro_korisnicko_ime
         if not identifiktor in svi_korisnici:
             # print("Korisnik ne postoji")
@@ -103,6 +106,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
             # print("Korisnik vec postoji")
             return "Korisnik vec postoji"
         svi_korisnici[identifiktor] = korisnik_podaci
+    sacuvaj_korisnike('./test_korisnici.csv',',',svi_korisnici)
     return svi_korisnici
 
 
@@ -113,10 +117,10 @@ Funkcija koja čuva podatke o svim korisnicima u fajl na zadatoj putanji sa zada
 
 def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
     if not type(svi_korisnici) is dict:
-        print("Greska")
+        # print("Greska")
         return "Greska: svi_korisnici nije dict"
 
-    with open(putanja, 'w') as f:
+    with open(putanja, 'w') as f: #DODAJ ZA BOLJE CUVANJE
         for korisnik in svi_korisnici.values():
             nov_red = list(korisnik.values())
             nov_red = separator.join(str(val) for val in nov_red) + '\n'
@@ -128,7 +132,7 @@ Funkcija koja učitava sve korisnika iz fajla na putanji sa zadatim separatorom.
 """
 
 
-def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:  # GOTOVO
+def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:
 
     with open(putanja, 'r') as f:
         korisnici = f.readlines()

@@ -71,6 +71,27 @@ class KorisnikTest(unittest.TestCase):
         self.assertIn(korisnik["korisnicko_ime"], svi_korisnici, msg="Korisnik nije u kolekciji")
         self.assertDictEqual(korisnik, svi_korisnici[korisnik["korisnicko_ime"]], msg="Korisnik nije dobro ažuriran")
 
+    def test_azuriraj_zauzeto_korisnicko_ime(self):
+        korisnik = rand_valid_user()
+        svi_korisnici = {
+            korisnik["korisnicko_ime"]: copy.deepcopy(self.pun_korisnik) # Bez kopije se menja referenca
+        }
+        with self.assertRaises(Exception, msg="Korisničko ime je već zauzeto: očekuje se greška"):
+            korisnici.kreiraj_korisnika(
+                svi_korisnici,
+                True, # azuriraj
+                korisnik["uloga"],
+                korisnik["korisnicko_ime"], # staro_korisnicko_ime
+                korisnik["korisnicko_ime"],
+                korisnik["lozinka"],
+                korisnik["ime"],
+                korisnik["prezime"],
+                korisnik["email"],
+                korisnik["pasos"],
+                korisnik["drzavljanstvo"],
+                korisnik["telefon"],
+                korisnik["pol"])
+
     def test_kreiraj_prazni(self):
         # Prodji kroz sve kljuceve, postavi jedan na None, pa pozovi funkciju
         for key in self.pun_korisnik:

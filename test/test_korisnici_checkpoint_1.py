@@ -29,7 +29,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -47,7 +47,7 @@ class KorisnikTest(unittest.TestCase):
             msg="Korisnikove vrednosti nisu dobre"
         )
 
-    def test_kreiraj_prazni(self):
+    def test_kreiraj_prazni(self): #PROVERI STA NE RADI
         # Prodji kroz sve kljuceve, postavi jedan na None, pa pozovi funkciju
         for key in self.pun_korisnik:
             if key in self.opciona_polja:
@@ -58,7 +58,7 @@ class KorisnikTest(unittest.TestCase):
                 {},
                 False,  # azuriraj
                 korisnik["uloga"],
-                None, # staro_korisnicko_ime
+                "", # staro_korisnicko_ime
                 korisnik["korisnicko_ime"],
                 korisnik["lozinka"],
                 korisnik["ime"],
@@ -79,7 +79,7 @@ class KorisnikTest(unittest.TestCase):
             svi_korisnici,
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -134,12 +134,36 @@ class KorisnikTest(unittest.TestCase):
         self.assertIn(korisnik["korisnicko_ime"], svi_korisnici, msg="Korisnik nije u kolekciji")
         self.assertDictEqual(korisnik, svi_korisnici[korisnik["korisnicko_ime"]], msg="Korisnik nije dobro ažuriran")
 
+    def test_azuriraj_zauzeto_korisnicko_ime(self): #menja korisnicko_ime u neko koje je zauzeto
+        korisnik = rand_valid_user()
+        svi_korisnici = {
+            korisnik["korisnicko_ime"]: copy.deepcopy(self.pun_korisnik) # Bez kopije se menja referenca
+        }
+
+        rezultat = korisnici.kreiraj_korisnika(
+            svi_korisnici,
+            True, # azuriraj
+            korisnik["uloga"],
+            korisnik["korisnicko_ime"], # staro_korisnicko_ime
+            korisnik["korisnicko_ime"],
+            korisnik["lozinka"],
+            korisnik["ime"],
+            korisnik["prezime"],
+            korisnik["email"],
+            korisnik["pasos"],
+            korisnik["drzavljanstvo"],
+            korisnik["telefon"],
+            korisnik["pol"])
+        self.assertTrue(type(rezultat) is str, msg=f"Korisničko ime je već zauzeto: očekuje se greška")
+        self.assertTrue(len(rezultat)>0, msg=f"Korisničko ime je već zauzeto: očekuje se greška")
+
+
     def test_email(self):
         rezultat = korisnici.kreiraj_korisnika(
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -157,7 +181,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -175,7 +199,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -193,7 +217,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -211,7 +235,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -230,7 +254,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -248,7 +272,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             "nepoznata_uloga",
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
