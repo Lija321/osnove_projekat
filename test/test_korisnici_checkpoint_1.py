@@ -47,7 +47,7 @@ class KorisnikTest(unittest.TestCase):
             msg="Korisnikove vrednosti nisu dobre"
         )
 
-    def test_kreiraj_prazni(self): #PROVERI STA NE RADI
+    def test_kreiraj_prazni(self):
         # Prodji kroz sve kljuceve, postavi jedan na None, pa pozovi funkciju
         for key in self.pun_korisnik:
             if key in self.opciona_polja:
@@ -134,18 +134,23 @@ class KorisnikTest(unittest.TestCase):
         self.assertIn(korisnik["korisnicko_ime"], svi_korisnici, msg="Korisnik nije u kolekciji")
         self.assertDictEqual(korisnik, svi_korisnici[korisnik["korisnicko_ime"]], msg="Korisnik nije dobro ažuriran")
 
-    def test_azuriraj_zauzeto_korisnicko_ime(self): #menja korisnicko_ime u neko koje je zauzeto
+    def test_azuriraj_zauzeto_korisnicko_ime(self):
         korisnik = rand_valid_user()
+        novo_korisnicko_ime = rand_str(10)
+        staro_korisnicko_ime = self.pun_korisnik["korisnicko_ime"]
+        korisnik["korisnicko_ime"] = novo_korisnicko_ime
+
         svi_korisnici = {
-            korisnik["korisnicko_ime"]: copy.deepcopy(self.pun_korisnik) # Bez kopije se menja referenca
+            self.pun_korisnik["korisnicko_ime"]: copy.deepcopy(korisnik),  # Bez kopije se menja referenca
+            novo_korisnicko_ime: copy.deepcopy(self.pun_korisnik),
         }
 
         rezultat = korisnici.kreiraj_korisnika(
             svi_korisnici,
             True, # azuriraj
             korisnik["uloga"],
-            korisnik["korisnicko_ime"], # staro_korisnicko_ime
-            korisnik["korisnicko_ime"],
+            staro_korisnicko_ime,
+            novo_korisnicko_ime,
             korisnik["lozinka"],
             korisnik["ime"],
             korisnik["prezime"],

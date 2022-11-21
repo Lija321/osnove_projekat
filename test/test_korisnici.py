@@ -28,7 +28,7 @@ class KorisnikTest(unittest.TestCase):
             {},
             False,  # azuriraj
             self.pun_korisnik["uloga"],
-            None, # staro_korisnicko_ime
+            "", # staro_korisnicko_ime
             self.pun_korisnik["korisnicko_ime"],
             self.pun_korisnik["lozinka"],
             self.pun_korisnik["ime"],
@@ -73,16 +73,21 @@ class KorisnikTest(unittest.TestCase):
 
     def test_azuriraj_zauzeto_korisnicko_ime(self):
         korisnik = rand_valid_user()
+        novo_korisnicko_ime = rand_str(10)
+        staro_korisnicko_ime = self.pun_korisnik["korisnicko_ime"]
+        korisnik["korisnicko_ime"] = novo_korisnicko_ime
+
         svi_korisnici = {
-            korisnik["korisnicko_ime"]: copy.deepcopy(self.pun_korisnik) # Bez kopije se menja referenca
+            self.pun_korisnik["korisnicko_ime"]: copy.deepcopy(korisnik), # Bez kopije se menja referenca
+            novo_korisnicko_ime: copy.deepcopy(self.pun_korisnik),
         }
         with self.assertRaises(Exception, msg="Korisničko ime je već zauzeto: očekuje se greška"):
             korisnici.kreiraj_korisnika(
                 svi_korisnici,
                 True, # azuriraj
                 korisnik["uloga"],
-                korisnik["korisnicko_ime"], # staro_korisnicko_ime
-                korisnik["korisnicko_ime"],
+                staro_korisnicko_ime,
+                novo_korisnicko_ime,
                 korisnik["lozinka"],
                 korisnik["ime"],
                 korisnik["prezime"],
