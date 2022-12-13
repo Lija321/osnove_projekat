@@ -97,6 +97,7 @@ class LetoviTest(unittest.TestCase):
             let["dani"],
             let["model"],
             let["cena"],)
+        print(rezultat)
         self.assertTrue(type(rezultat) is str, msg=f"Provera za nedostajucu vrednost: {key}")
         self.assertTrue(len(rezultat)>0, msg=f"Provera za nedostajucu vrednost: {key}")
 
