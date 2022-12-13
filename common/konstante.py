@@ -1,3 +1,11 @@
 ULOGA_KORISNIK = "korisnik"
 ULOGA_PRODAVAC = "prodavac"
 ULOGA_ADMIN = "admin"
+
+PONEDELJAK = "ponedeljak"
+UTORAK = "utorak"
+SREDA = "sreda"
+CETVRTAK = "cetvrtak"
+PETAK = "petak"
+SUBOTA = "subota"
+NEDELJA = "nedelja"

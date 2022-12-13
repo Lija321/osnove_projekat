@@ -48,19 +48,20 @@ def proveri_nedostajucu_vernost(provera_podaci):
 Funkcija koja kreira novi rečnik koji predstavlja korisnika sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
 svih korisnika proširenu novim korisnikom. Može se ponašati kao dodavanje ili ažuriranje, u zavisnosti od vrednosti
 parametra azuriraj:
-- azuriraj == False: kreira se novi korisnik. Vraća grešku ako korisničko ime već postoji.
-- azuriraj == True: ažurira se postojeći korisnik. Vraća grešku ako korisničko ime ne postoji.
+- azuriraj == False: kreira se novi korisnik. staro_korisnicko_ime ne mora biti prosleđeno.
+Vraća grešku ako korisničko ime već postoji.
+- azuriraj == True: ažurira se postojeći korisnik. Staro korisnicko ime mora biti prosleđeno. 
+Vraća grešku ako korisničko ime ne postoji.
 
 Ova funkcija proverava i validnost podataka o korisniku, koji su tipa string.
 
 CHECKPOINT 1: Vraća string sa greškom ako podaci nisu validni.
     Hint: Postoji string funkcija koja proverava da li je string broj bez bacanja grešaka. Probajte da je pronađete.
-
 ODBRANA: Baca grešku sa porukom ako podaci nisu validni.
 """
 
 
-def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_korisnicko_ime: str,
+def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_korisnicko_ime: str, 
                       korisnicko_ime: str, lozinka: str, ime: str, prezime: str, email: str = "",
                       pasos: str = "", drzavljanstvo: str = "",
                       telefon: str = "", pol: str = "") -> dict:
@@ -169,6 +170,12 @@ def login(svi_korisnici, korisnicko_ime, lozinka) -> dict:
         # print("Korisnik nije pronadjen")
         return "Login nepostojeći"
 
+"""
+Funkcija koja vrsi log out
+*
+"""
+def logout(korisnicko_ime: str):
+    pass
 
 if __name__ == "__main__":
     svi_korisnici = ucitaj_korisnike_iz_fajla('./test_korisnici.csv', '|')
