@@ -39,31 +39,31 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
                 (list_type,list),
                 (int_type,int)]
 
-    try:
-        for var_type_tuple in check_list:
-            var_list=var_type_tuple[0]
-            var_type=var_type_tuple[1]
-            if not all(isinstance(x,var_type) for x in var_list):
-                raise TypeError(var_type)
+    for var_type_tuple in check_list:
+        var_list=var_type_tuple[0]
+        var_type=var_type_tuple[1]
+        if not all(x for x in var_list):
+            return f"{var_type} is empty"
+        if not all(isinstance(x,var_type) for x in var_list):
+            raise TypeError(var_type)
 
-        time_error_raise=False
-        for time_input in time_type:
-            test1=False
-            test2=False
-            try:
-                time.strptime(time_input,"%H:%M%p")
-            except ValueError:
-                test1=True
-            try:
-                time.strptime(time_input, "%H:%M")
-            except ValueError:
-                test2=True
-            time_error_raise=time_error_raise or (test1 and test2)
+    time_error_raise=False
+    for time_input in time_type:
+        test1=False
+        test2=False
+        try:
+            time.strptime(time_input,"%H:%M%p")
+        except ValueError:
+            test1=True
+        try:
+            time.strptime(time_input, "%H:%M")
+        except ValueError:
+            test2=True
+        time_error_raise=time_error_raise or (test1 and test2)
 
-        if time_error_raise: raise TypeError("time")
+    if time_error_raise: raise TypeError("time")
 
-    except TypeError as msg:
-        print(msg)
+
 
 
 
@@ -73,8 +73,9 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
 def izmena_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                      vreme_poletanja: str, vreme_sletanja: str, sletanje_sutra: bool, prevoznik: str,
                      dani: list, model: dict, cena: float)-> dict:
-    if not broj_leta in svi_letovi:
-        raise  LookupError
+    if not (broj_leta in svi_letovi):
+        raise  KeyError("let ne postoji")
+        print(LookupError)
 
 
     let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,
@@ -82,6 +83,7 @@ def izmena_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma:
            "vreme_poletanja": vreme_poletanja, "vreme_sletanja": vreme_sletanja,
            "sletanje_sutra": sletanje_sutra, "prevoznik": prevoznik, "dani": dani, "model": model, "cena": cena}
     svi_letovi[broj_leta]=let
+    return svi_letovi
 
 def sacuvaj_letove(putanja: str, separator: str, svi_letovi: dict):
     #['broj_leta', 'cena', 'dani', 'model', 'prevoznik',"sifra_odredisnog_aerodorma", 'sifra_polazisnog_aerodroma', 'sletanje_sutra', 'vreme_poletanja', 'vreme_sletanja']
