@@ -1,13 +1,12 @@
 import os
 import unittest
 import copy
-import random
 
-from common import konstante
 from karte import karte
-from test.test_utils import rand_str, rand_valid_user, rand_time_str, rand_date_str, rand_seat_positions
+from letovi import letovi
+from test.test_utils import *
 import random
-import string
+from datetime import datetime
 
 class KarteTest(unittest.TestCase):
     def setUp(self):
@@ -16,17 +15,36 @@ class KarteTest(unittest.TestCase):
                 "id": 123,
                 "naziv": rand_str(10),
                 "broj_redova": random.randint(20, 50),
-                "pozicija_sedista": rand_seat_positions()
+                "pozicije_sedista": rand_seat_positions()
             },
             124: {
                 "id": 124,
                 "naziv": rand_str(10),
                 "broj_redova": random.randint(20, 50),
-                "pozicija_sedista": rand_seat_positions()
+                "pozicije_sedista": rand_seat_positions()
             }
         }
 
+        dani = list({random.randint(0, 6): True for n in range(random.randint(1, 7))}.keys())
+        dani.sort()
         broj_leta = rand_str(4)
+        self.pun_let = {
+            "broj_leta": broj_leta,
+            "sifra_polazisnog_aerodroma": rand_str(3), #pitanje, da li je u redu da stavim ovako nazive, ili nekako drugacije?
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),#pitanje, da li je u redu da stavim ovako vreme, ili nekako drugacije?
+            "vreme_sletanja": rand_time_str(),
+            "sletanje_sutra": False,
+            "prevoznik": rand_str(10),
+            "dani": dani,
+            "model": self.modeli_aviona[123],
+            "cena": 100 + random.random() * 200
+        }
+        self.pun_korisnik = rand_valid_user()
+
+        self.svi_letovi = {
+            broj_leta: self.pun_let
+        }
 
         self.konkretan_let = {
             "sifra": 1234,
@@ -35,9 +53,15 @@ class KarteTest(unittest.TestCase):
             "datum_dolaska": rand_date_str()
         }
 
-        pozicije_sedista = self.modeli_aviona[123]["pozicija_sedista"]
-        odabrano_sediste_red = random.randint(1, self.modeli_aviona[123]["broj_redova"])
-        odabrano_sediste_pozicija = pozicije_sedista[random.randint(len(pozicije_sedista))]
+        self.svi_konkretni_letovi = {
+            self.konkretan_let["sifra"]: self.konkretan_let
+        }
+
+        pozicije_sedista = self.modeli_aviona[123]["pozicije_sedista"]
+        odabrano_sediste = rand_seat(
+            self.modeli_aviona[123]["broj_redova"],
+            len(pozicije_sedista)-1
+        )
 
         self.puna_karta = {
             "broj_karte": 1,
@@ -45,7 +69,7 @@ class KarteTest(unittest.TestCase):
              "sifra_konkretnog_leta": 1234,
             "kupac": rand_str(10), # k ime od kupca
             "prodavac": rand_str(10),
-            "sifra_sedista": f"{odabrano_sediste_pozicija}{odabrano_sediste_red}",
+            "sifra_sedista": odabrano_sediste,
             "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_polaska']),
             "obrisana": False
         }
@@ -59,204 +83,246 @@ class KarteTest(unittest.TestCase):
         if os.path.isfile(self.putanja):
             os.remove(self.putanja)
 
+    def test_kupovina_validna(self):
+        konkretan_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_polaska": rand_datetime(),
+            "datum_dolaska": rand_datetime(),
+        }
+        svi_konkretni_letovi = {
+            konkretan_let["sifra"]: konkretan_let
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretan_let)
 
-    def test_izmena_karte(self):
-        sve_karte = karte.izmena_karte(
-            {self.puna_karta["broj_karte"]: self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]: self.konkretan_let},
-            self.puna_karta["sifra_konkretnog_leta"],
-            self.puna_karta["broj_karte"],
-            self.konkretan_let["sifra"],
-            "23.10.2023.",
-            "a5"
+        korisnik = {
+            "id": 123, 
+            "uloga": konstante.ULOGA_KORISNIK
+        }
+        prodavac = {
+            "id": 111,
+            "uloga": konstante.ULOGA_PRODAVAC
+        }
+        ocekivana_karta = {
+            "broj_karte": karte.sledeci_broj_karte,
+            "putnici": [korisnik],
+            "sifra_konkretnog_leta": konkretan_let["sifra"],
+            "status": konstante.STATUS_NEREALIZOVANA_KARTA,
+            "kupac": korisnik,
+            "prodavac": prodavac,
+            "datum_prodaje": datetime.now()
+        }
+        karta = karte.kupovina_karte(
+            {},
+            svi_konkretni_letovi,
+            konkretan_let["sifra"],
+            [korisnik],
+            letovi.matrica_zauzetosti(konkretan_let),
+            korisnik,
+            prodavac=ocekivana_karta["prodavac"],
+            datum_prodaje=ocekivana_karta["datum_prodaje"]
         )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
+        self.assertEqual(ocekivana_karta, karta)
 
-    def test_izmena_karte_pogresan_let(self):
-        with self.assertRaises(Exception, msg=f"Provera za nedostajucu vrednost: let"):
-            sve_karte = karte.izmena_karte(
-                {self.puna_karta["broj_karte"]: self.puna_karta},
-                {self.pun_let["broj_leta"]: self.pun_let},
-                {self.konkretan_let["sifra"]: self.konkretan_let},
-                self.puna_karta["sifra_konkretnog_leta"],
-                self.puna_karta["broj_karte"],
-                "67868",
-                "13.5.2024.",
-                "A3"
+
+    def test_kupovina_nema_mesta(self):
+        konkretan_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_polaska": rand_datetime(),
+            "datum_dolaska": rand_datetime(),
+        }
+        svi_konkretni_letovi = {
+            konkretan_let["sifra"]: konkretan_let
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretan_let)
+
+        korisnik = {
+            "id": 123,
+            "uloga": konstante.ULOGA_KORISNIK
+        }
+        with self.assertRaises(Exception, msg=f"Nema mesta"):
+            karte.kupovina_karte(
+                {},
+                svi_konkretni_letovi,
+                konkretan_let["sifra"],
+                [korisnik],
+                [[True for _ in podlista] for podlista in letovi.matrica_zauzetosti(konkretan_let)],
+                korisnik
             )
 
-    def test_izmena_karte_pogresan_datum(self):
-        with self.assertRaises(Exception, msg=f"Provera za datum koji je prosao"):
-            sve_karte = karte.izmena_karte(
-                {self.puna_karta["broj_karte"]: self.puna_karta},
-                {self.pun_let["broj_leta"]: self.pun_let},
-                {self.konkretan_let["sifra"]: self.konkretan_let},
-                self.puna_karta["sifra_konkretnog_leta"],
-                self.puna_karta["broj_karte"],
-                self.puna_karta["sifra_leta"],
-                "13.5.2020.",
-                "a5"
+    def test_kupovina_nevalidne_uloga(self):
+        konkretan_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_polaska": rand_datetime(),
+            "datum_dolaska": rand_datetime(),
+        }
+        svi_konkretni_letovi = {
+            konkretan_let["sifra"]: konkretan_let
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretan_let)
+
+        korisnik = {
+            "id": 123,
+            "uloga": konstante.ULOGA_PRODAVAC
+        }
+        with self.assertRaises(Exception, msg=f"Prodavac ne može da kupi kartu"):
+            karte.kupovina_karte(
+                {},
+                svi_konkretni_letovi,
+                konkretan_let["sifra"],
+                [korisnik],
+                letovi.matrica_zauzetosti(konkretan_let),
+                korisnik
             )
 
-
-    def test_izmena_karte_pogresno_sediste(self):
-        with self.assertRaises(Exception, msg=f"Provera za sediste koje ne postoji"):
-            sve_karte = karte.izmena_karte(
-                {self.puna_karta["broj_karte"]: self.puna_karta},
-                {self.pun_let["broj_leta"]: self.pun_let},
-                {self.konkretan_let["sifra"]: self.konkretan_let},
-                self.puna_karta["sifra_konkretnog_leta"],
-                self.puna_karta["broj_karte"],
-                self.konkretan_let["sifra"],
-                "12.12.2024.",
-                ''.join(random.sample(string.ascii_lowercase, 4))
+        korisnik = {
+            "id": 123,
+            "uloga": konstante.ULOGA_ADMIN
+        }
+        with self.assertRaises(Exception, msg=f"Admin ne može da kupi kartu"):
+            karte.kupovina_karte(
+                {},
+                svi_konkretni_letovi,
+                konkretan_let["sifra"],
+                [korisnik],
+                letovi.matrica_zauzetosti(konkretan_let),
+                korisnik
             )
+
+        korisnik = {
+            "id": 123,
+            "uloga": konstante.ULOGA_KORISNIK
+        }
+        with self.assertRaises(Exception, msg=f"Prodavac mora da proda kartu"):
+            karte.kupovina_karte(
+                {},
+                svi_konkretni_letovi,
+                konkretan_let["sifra"],
+                [korisnik],
+                letovi.matrica_zauzetosti(konkretan_let),
+                korisnik,
+                prodavac=korisnik
+            )
+
+    def test_kupovina_nepostojeci_let(self):
+        konkretan_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_polaska": rand_datetime(),
+            "datum_dolaska": rand_datetime(),
+        }
+        svi_konkretni_letovi = {
+            konkretan_let["sifra"]: konkretan_let
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretan_let)
+
+        korisnik = {
+            "id": 123,
+            "uloga": konstante.ULOGA_KORISNIK
+        }
+        with self.assertRaises(Exception, msg=f"Provera za nepostojeći let"):
+            karte.kupovina_karte(
+                {},
+                svi_konkretni_letovi,
+                321,
+                [korisnik],
+                letovi.matrica_zauzetosti(konkretan_let),
+                korisnik
+            )
+
+    def test_pretraga_nerealizovanih_karata(self):
+        sve_karte = [
+            {
+                "broj_karte": 1,
+                "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
+                "konretni_let": self.konkretan_let,
+                "status": konstante.STATUS_NEREALIZOVANA_KARTA
+            },
+            {
+                "broj_karte": 1,
+                "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
+                "konretni_let": self.konkretan_let,
+                "status": konstante.STATUS_REALIZOVANA_KARTA
+            },
+            {
+                "broj_karte": 2,
+                "putnici": [{"korisnicko_ime": rand_str(10)}, {"korisnicko_ime": rand_str(10)}],
+                "konretni_let": self.konkretan_let,
+                "status": konstante.STATUS_NEREALIZOVANA_KARTA
+            },
+        ]
+
+        ocekivane_karte = [
+            sve_karte[0]
+        ]
+        nerealizovane_karte = karte.pregled_nerealizovanaih_karata(self.pun_korisnik, sve_karte)
+        self.assertListEqual(ocekivane_karte, nerealizovane_karte)
 
 
     def test_brisanje_karte_prodavac(self):
         karta = copy.deepcopy(self.puna_karta)
-        karta["obrisana"] = False
-        sve_karte = karte.brisanje_karte_od_strane_prodavca(
-            {self.puna_karta["broj_karte"]: self.puna_karta},
+        ocekivana_karta = copy.deepcopy(karta)
+        ocekivana_karta["obrisana"] = True
+
+        broj_karte = self.puna_karta["broj_karte"]
+        sve_karte = karte.brisanje_karte(
+            {"uloga": konstante.ULOGA_PRODAVAC},
+            {broj_karte: self.puna_karta},
             self.puna_karta["broj_karte"]
         )
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Korisnik nije u kolekciji")
+        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
         self.assertDictEqual(
-            karta,
-            sve_karte[self.puna_karta["broj_karte"]],
+            ocekivana_karta,
+            sve_karte[karta["broj_karte"]],
             msg="Kartine vrednosti nisu dobre"
         )
 
-    def test_neuspesno_brisanje_karte_prodavac(self):
+    def test_brisanje_karte_admin(self):
         karta = copy.deepcopy(self.puna_karta)
-        karta["obrisana"] = False
-        with self.assertRaises(Exception, msg=f"Brisanje nepostojece karte"):
-            karte.brisanje_karte_od_strane_prodavca(
-                {self.puna_karta["broj_karte"]: self.puna_karta},
-                "123"
+        ocekivana_karta = copy.deepcopy(karta)
+        ocekivana_karta["obrisana"] = True
+
+        broj_karte = self.puna_karta["broj_karte"]
+        sve_karte = karte.brisanje_karte(
+            {"uloga": konstante.ULOGA_ADMIN},
+            {broj_karte: self.puna_karta},
+            self.puna_karta["broj_karte"]
+        )
+        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
+        self.assertTrue(broj_karte not in sve_karte)
+
+    def test_brisanje_karte_nevalidni_slucajevi(self):
+        broj_karte = self.puna_karta["broj_karte"]
+        with self.assertRaises(Exception, msg=f"Običan korisnik ne može da obriše kartu"):
+            karte.brisanje_karte(
+                {"uloga": konstante.ULOGA_KORISNIK},
+                {broj_karte: self.puna_karta},
+                self.puna_karta["broj_karte"]
             )
-
-    #--------------------------------------------------------------
-    def test_pretraga_prodatih_karata_polaziste(self):
-        sve_karte = karte.pretraga_prodatih_karata(
-            {self.puna_karta["broj_karte"]: self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]: self.konkretan_let},
-            self.pun_let["sifra_polazisnog_aerodroma"],
-        )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
-
-    def test_pretraga_prodatih_karata_odrediste(self):
-        sve_karte = karte.pretraga_prodatih_karata(
-            {self.puna_karta["broj_karte"]:self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]: self.konkretan_let},
-            "",
-            self.pun_let["sifra_odredisnog_aerodroma"],
-        )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
-
-    def test_pretraga_prodatih_karata_datum_polaska(self):
-        sve_karte = karte.pretraga_prodatih_karata(
-            {self.puna_karta["broj_karte"]:self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]:self.konkretan_let},
-            "",
-            "",
-            self.konkretan_let["datum_polaska"]
-        )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
-
-    def test_pretraga_prodatih_karata_datum_odlaska(self):
-        sve_karte = karte.pretraga_prodatih_karata(
-            {self.puna_karta["broj_karte"]:self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]: self.konkretan_let},
-            "",
-            "",
-            "",
-            self.puna_karta["datum_dolaska"]
-        )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
-
-    def test_pretraga_prodatih_karata_putnik_uspesno(self):
-        sve_karte = karte.pretraga_prodatih_karata(
-            {self.puna_karta["broj_karte"]: self.puna_karta},
-            {self.pun_let["broj_leta"]: self.pun_let},
-            {self.konkretan_let["sifra"]: self.konkretan_let},
-            "",
-            "",
-            "",
-            "",
-            self.puna_karta["kupac"]
-        )
-        self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(self.puna_karta["broj_karte"], sve_karte, msg="Karta nije u kolekciji")
-        self.assertDictEqual(
-            self.puna_karta,
-            sve_karte[self.puna_karta["broj_karte"]],
-            msg="Kartine vrednosti nisu dobre"
-        )
-
-    def test_pretraga_prodatih_karata_putnik_neuspesno(self):
-        with self.assertRaises(Exception, msg=f"Prosledjene su lose vrednosti"):
-            sve_karte = karte.pretraga_prodatih_karata(
-                {self.puna_karta["broj_karte"]: self.puna_karta},
-                {self.pun_let["broj_leta"]: self.pun_let},
-                {self.konkretan_let["sifra"]: self.konkretan_let},
-                None,
-                None,
-                None,
-                None,
-                None,
+        with self.assertRaises(Exception, msg=f"Brisanje nepostojeće karte"):
+            karte.brisanje_karte(
+                {"uloga": konstante.ULOGA_PRODAVAC},
+                {broj_karte: random.randint(10, 100)},
+                self.puna_karta["broj_karte"]
             )
 
     def testiraj_karte_fajl(self):
-        karta2 = copy.deepcopy(self.puna_karta)
-        karta2["broj_karte"]=2
-        karta2["sifra_sedista"]="c2"
-        karta3 = copy.deepcopy(self.puna_karta)
-        karta3["broj_karte"] = 3
-        karta3["sifra_sedista"] = "c3"
+        odaberi_sediste = lambda : rand_seat(100, ord('H') - ord('A'))
         referentne_karte = {
-            self.puna_karta["broj_karte"]: self.puna_karta,
-            karta2["broj_leta"]: karta2,
-            karta3["broj_leta"]: karta3
+            i: {
+                "broj_karte": i,
+                "sifra_konkretnog_leta": random.randint(1000, 10000),
+                "kupac": rand_str(10),  # k ime od kupca
+                "prodavac": rand_str(10),
+                "sifra_sedista": odaberi_sediste(),
+                "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_polaska']),
+                "obrisana": False
+            } for i in range(100)
         }
-        karte.sacuvaj_karte(self.putanja, "|", referentne_karte)
-
+        karte.sacuvaj_karte(referentne_karte, self.putanja, "|")
         ucitane_karte = karte.ucitaj_karte_iz_fajla(self.putanja, "|")
         self.assertIsNotNone(ucitane_karte, msg="Nisu učitane karte iz fajla")
         self.assertEqual(len(referentne_karte), len(ucitane_karte), msg="Dužine učitanih karata nisu jednake")

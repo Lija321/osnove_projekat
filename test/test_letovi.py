@@ -3,11 +3,18 @@ import os
 import random
 import unittest
 
+from random import randint
+
 from common import konstante
 from letovi import letovi
-from test.test_utils import rand_str, rand_valid_user, rand_time_str, rand_date_str, rand_seat_positions
+
+from test.test_utils import rand_str, rand_valid_user, rand_time_str, rand_seat_positions, rand_datetime
+from datetime import datetime, timedelta
 
 
+# 1. Test case po stavci iz projekta
+# 2. Konvencija imenovanja (test_kreiraj_* za kreiranje) i svi scenariji u jednom testu
+# 3. Konvencija imenovanja (test_kreiraj_* za kreiranje) ali su scenariji razdvojeni. Npr. prazno ime i prazan email posebni testovi
 class LetoviTest(unittest.TestCase):
     def setUp(self):
         self.modeli_aviona = {
@@ -15,31 +22,31 @@ class LetoviTest(unittest.TestCase):
                 "id": 123,
                 "naziv": rand_str(10),
                 "broj_redova": random.randint(20, 50),
-                "pozicija_sedista": rand_seat_positions()
+                "pozicije_sedista": rand_seat_positions()
             },
             124: {
                 "id": 124,
                 "naziv": rand_str(10),
                 "broj_redova": random.randint(20, 50),
-                "pozicija_sedista": rand_seat_positions()
+                "pozicije_sedista": rand_seat_positions()
             }
         }
 
-        broj_leta = rand_str(4)
+        broj_leta = rand_str(2) + str(randint(10,99))
 
         self.konkretan_let = {
             "sifra": 1234,
             "broj_leta": broj_leta,
-            "datum_polaska": rand_date_str(),
-            "datum_dolaska": rand_date_str()
+            "datum_i_vreme_polaska": rand_datetime(),
+            "datum_i_vreme_dolaska": rand_datetime()
         }
         dani = list({random.randint(0, 6): True for n in range(random.randint(1, 7))}.keys())
         dani.sort()
         self.pun_let = {
             "broj_leta": broj_leta,
-            "sifra_polazisnog_aerodroma": rand_str(3), #pitanje, da li je u redu da stavim ovako nazive, ili nekako drugacije?
+            "sifra_polazisnog_aerodroma": rand_str(3),
             "sifra_odredisnog_aerodorma": rand_str(3),
-            "vreme_poletanja": rand_time_str(),#pitanje, da li je u redu da stavim ovako vreme, ili nekako drugacije?
+            "vreme_poletanja": rand_time_str(),
             "vreme_sletanja": rand_time_str(),
             "sletanje_sutra": False,
             "prevoznik": rand_str(10),
@@ -48,6 +55,9 @@ class LetoviTest(unittest.TestCase):
             "cena": 100 + random.random() * 200
         }
         self.pun_korisnik = rand_valid_user()
+        self.svi_letovi = {
+            broj_leta: self.pun_let
+        }
 
         self.putanja = "test_letovi.csv"
 
@@ -58,7 +68,7 @@ class LetoviTest(unittest.TestCase):
         if os.path.isfile(self.putanja):
             os.remove(self.putanja)
 
-    def test_kreiraj_validan_let(self):
+    def test_kreiraj_let_validan(self):
         svi_letovi = letovi.kreiranje_letova(
             {},
             self.pun_let["broj_leta"],
@@ -80,53 +90,31 @@ class LetoviTest(unittest.TestCase):
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_kreiraj_prazni(self):
-        for key in self.pun_let:
-            let = copy.deepcopy(self.pun_let)
-            let[key] = None
-
-        rezultat = letovi.kreiranje_letova(
-            {},
-            let["broj_leta"],
-            let["sifra_polazisnog_aerodroma"],
-            let["sifra_odredisnog_aerodorma"],
-            let["vreme_poletanja"],
-            let["vreme_sletanja"],
-            let["sletanje_sutra"],
-            let["prevoznik"],
-            let["dani"],
-            let["model"],
-            let["cena"],)
-        print(rezultat)
-        self.assertTrue(type(rezultat) is str, msg=f"Provera za nedostajucu vrednost: {key}")
-        self.assertTrue(len(rezultat)>0, msg=f"Provera za nedostajucu vrednost: {key}")
-
-    def test_kreiraj_prazni_let(self):
+    def test_kreiraj_let_prazan(self):
         for key in self.pun_let:
             let = copy.deepcopy(self.pun_let)
             let[key] = ""
         let["model"] = 0
         let["cena"] = 0
-        rezultat = letovi.kreiranje_letova(
-            {},
-            let["broj_leta"],
-            let["sifra_polazisnog_aerodroma"],
-            let["sifra_odredisnog_aerodorma"],
-            let["vreme_poletanja"],
-            let["vreme_sletanja"],
-            let["sletanje_sutra"],
-            let["prevoznik"],
-            let["dani"],
-            let["model"],
-            let["cena"],)
-        self.assertTrue(type(rezultat) is str, msg=f"Provera za nedostajucu vrednost: {key}")
-        self.assertTrue(len(rezultat)>0, msg=f"Provera za nedostajucu vrednost: {key}")
-
-    def test_kreiraj_nevalidan_let_broj_leta(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: broj leta"):
             rezultat = letovi.kreiranje_letova(
                 {},
-                "aaaaaa",
+                let["broj_leta"],
+                let["sifra_polazisnog_aerodroma"],
+                let["sifra_odredisnog_aerodorma"],
+                let["vreme_poletanja"],
+                let["vreme_sletanja"],
+                let["sletanje_sutra"],
+                let["prevoznik"],
+                let["dani"],
+                let["model"],
+                let["cena"],)
+
+    def test_kreiraj_let_nevalidan_broj_leta(self):
+        with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: broj leta"):
+            rezultat = letovi.kreiranje_letova(
+                {},
+                rand_str(7),
                 self.pun_let["sifra_polazisnog_aerodroma"],
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
@@ -137,14 +125,14 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["model"],
                 self.pun_let["cena"])
 
-    def test_kreiraj_nevalidan_let_vreme_polaska(self):
+    def test_kreiraj_let_nevalidno_vreme_polaska(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: vreme polaska"):
             rezultat = letovi.kreiranje_letova(
                 {},
                 self.pun_let["broj_leta"],
                 self.pun_let["sifra_polazisnog_aerodroma"],
                 self.pun_let["sifra_odredisnog_aerodorma"],
-                "12345",
+                rand_str(8),
                 self.pun_let["vreme_sletanja"],
                 self.pun_let["sletanje_sutra"],
                 self.pun_let["prevoznik"],
@@ -152,7 +140,7 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["model"],
                 self.pun_let["cena"])
 
-    def test_kreiraj_nevalidan_let_vreme_dolaska(self):
+    def test_kreiraj_let_nevalidno_vreme_dolaska(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: vreme dolaska"):
             rezultat = letovi.kreiranje_letova(
                 {},
@@ -160,7 +148,7 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["sifra_polazisnog_aerodroma"],
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
-                "12345",
+                rand_str(2),
                 self.pun_let["sletanje_sutra"],
                 self.pun_let["prevoznik"],
                 self.pun_let["dani"],
@@ -168,7 +156,7 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["cena"])
 
 
-    def test_kreiraj_nevalidan_let_dani(self):
+    def test_kreiraj_let_nevalidni_dani(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: losi dani"):
             rezultat = letovi.kreiranje_letova(
                 {},
@@ -179,11 +167,11 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["vreme_sletanja"],
                 self.pun_let["sletanje_sutra"],
                 self.pun_let["prevoznik"],
-                None, #pitanje ili da posaljem [] ?
+                None,
                 self.pun_let["model"],
                 self.pun_let["cena"])
 
-    def test_kreiraj_nevalidan_let_cena(self):
+    def test_kreiraj_let_nevalidna_cena(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: cena"):
             rezultat = letovi.kreiranje_letova(
                 {},
@@ -196,9 +184,9 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["prevoznik"],
                 self.pun_let["dani"],
                 self.pun_let["model"],
-                -345)
+                randint(-100,-1))
 
-    def test_kreiraj_nevalidan_let_model(self):
+    def test_kreiraj_let_nevalidan_model(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: model"):
             rezultat = letovi.kreiranje_letova(
                 {},
@@ -214,21 +202,20 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["cena"])
 
     #--------------------------------------------------------------
-    def test_uspesna_pretraga_letova_polaziste(self):
+    def test_pretraga_letova_uspesno_po_polazistu(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]:self.konkretan_let},
             self.pun_let["sifra_polazisnog_aerodroma"]
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_odrediste(self): # da li ovde da dodam vise letova pa nekako drugacije da vratim??? razmisli
+    def test_pretraga_letova_uspesna_po_odredistu(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
@@ -236,47 +223,44 @@ class LetoviTest(unittest.TestCase):
             self.pun_let["sifra_odredisnog_aerodorma"]
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_datum_polaska(self):
+    def test_pretraga_letova_uspesna_po_datumu_polaska(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
             "",
             "",
-            self.konkretan_let["datum_polaska"],
+            self.konkretan_let["datum_i_vreme_polaska"],
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_datum_dolaska(self):
+    def test_pretraga_letova_uspesna_po_datumu_dolaska(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
             "",
             "",
             "",
-            self.konkretan_let["datum_dolaska"]
+            self.konkretan_let["datum_i_vreme_dolaska"]
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_vreme_poletanja(self): # da li ovde da dodam vise letova pa nekako drugacije da vratim??? razmisli
+    def test_pretraga_letova_uspesna_po_vremenu_poletanja(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
@@ -287,14 +271,14 @@ class LetoviTest(unittest.TestCase):
             self.pun_let["vreme_poletanja"],
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
+
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_vreme_sletanja(self): # da li ovde da dodam vise letova pa nekako drugacije da vratim??? razmisli
+    def test_pretraga_letova_uspesna_po_vremenu_sletanja(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
@@ -303,17 +287,16 @@ class LetoviTest(unittest.TestCase):
             "",
             "",
             "",
-            self.pun_let["vreme_sletanja"], # da li ovo ide bas po sifri ili po imenu pa tako nekako
+            self.pun_let["vreme_sletanja"],
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_prevoznik(self): # da li ovde da dodam vise letova pa nekako drugacije da vratim??? razmisli
+    def test_pretraga_letova_uspesna_po_prevozniku(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
@@ -326,72 +309,64 @@ class LetoviTest(unittest.TestCase):
             self.pun_let["prevoznik"],
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_uspesna_pretraga_letova_visekriterijumska(self): # da li ovde da dodam vise letova pa nekako drugacije da vratim??? razmisli
+    def test_pretraga_letova_visekriterijumska_uspesna(self):
         trazeni_letovi = letovi.pretraga_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
             {self.konkretan_let["sifra"]: self.konkretan_let},
-            self.pun_let["sifra_polazisnog_aerodroma"], # da li ovo ide bas po sifri ili po imenu pa tako nekako
+            self.pun_let["sifra_polazisnog_aerodroma"],
             self.pun_let["sifra_odredisnog_aerodorma"],
             "",
             "",
             self.pun_let["vreme_poletanja"],
-            self.pun_let["sifra_vreme_sletanja"],
+            self.pun_let["vreme_sletanja"],
             self.pun_let["prevoznik"],
 
            )
         self.assertIsNotNone(trazeni_letovi, msg="Nije vraćena kolekcija letova")
-        self.assertIn(self.pun_let["broj_leta"], trazeni_letovi, msg="Let nije u kolekciji")
         self.assertDictEqual(
-            self.pun_let,
+            self.konkretan_let,
             trazeni_letovi[0],
             msg="Vrednosti od leta nisu dobre"
         )
 
 
-    def test_neuspesna_pretraga(self):
+    def test_pretraga_letova_neuspesna(self):
         with self.assertRaises(Exception, msg=f"Neuspesno trazenje leta"):
             trazeni_letovi = letovi.pretraga_letova(
                 {self.pun_let["broj_leta"]: self.pun_let},
                 {self.konkretan_let["sifra"]: self.konkretan_let},
-                "LKI",  # da li ovo ide bas po sifri ili po imenu pa tako nekako
-                "NJH",
+                rand_str(3),
+                rand_str(3),
                 "",
                 "",
-                "aaaaa",
+                rand_str(5),
                 self.pun_let["sifra_vreme_sletanja"],
                 self.pun_let["prevoznik"])
 
     #--------------------------------------------------------------
-    def test_uspesno_trazenje_10_najjeftinijih_letova(self):
-        pass
 
-    def test_neuspesno_trazenje_10_najjeftinijih_letova(self):
-        pass
-
-    #--------------------------------------------------------------
-    def test_uspesna_izmena_letova(self):
+    def test_izmena_letova_uspesna(self):
         nov_let={
-            "broj_leta": "aa33",
-            "sifra_polazisnog_aerodroma": "LON",
-            "sifra_odredisnog_aerodorma": "SAO",
-            "vreme_poletanja": "10:45",
-            "vreme_sletanja": "7:30",
+            "broj_leta": self.pun_let["broj_leta"],
+            "sifra_polazisnog_aerodroma": rand_str(3),
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),
+            "vreme_sletanja": rand_time_str(),
             "sletanje_sutra": True,
-            "prevoznik": "prevoznik1",
+            "prevoznik": rand_str(5),
             "dani": [konstante.SUBOTA, konstante.PONEDELJAK],
             "model": self.modeli_aviona[124],
-            "cena": 200
+            "cena": 100 + random.random() * 200
         }
         svi_letovi = letovi.izmena_letova(
             {self.pun_let["broj_leta"]: self.pun_let},
-            self.pun_let["broj_leta"], #ostavicu da ne menja br leta pa ako zatreba dodacemo
+            self.pun_let["broj_leta"],
             nov_let["sifra_polazisnog_aerodroma"],
             nov_let["sifra_odredisnog_aerodorma"],
             nov_let["vreme_poletanja"],
@@ -410,12 +385,12 @@ class LetoviTest(unittest.TestCase):
             msg="Vrednosti od leta nisu dobre"
         )
 
-    def test_neuspesna_izmena_letova(self):
+    def test_izmena_letova_neuspesna(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: polaziste"):
             rezultat = letovi.izmena_letova(
                 {},
                 self.pun_let["broj_leta"],
-                "3333333",
+                rand_str(7),
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
                 self.pun_let["vreme_sletanja"],
@@ -424,12 +399,12 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_nepostojeci_let(self):
+    def test_izmena_letova_neuspesna_nepostojeci_let(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: nepostojeci let"):
             rezultat = letovi.izmena_letova(
                 {},
-                "789989",
-                "3333333",
+                rand_str(7),
+                rand_str(7),
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
                 self.pun_let["vreme_sletanja"],
@@ -438,12 +413,12 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_polaziste(self):
+    def test_izmena_letova_neuspesna_polaziste(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: polaziste"):
             rezultat = letovi.izmena_letova(
                 {},
                 self.pun_let["broj_leta"],
-                "3333333",
+                rand_str(7),
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
                 self.pun_let["vreme_sletanja"],
@@ -452,13 +427,13 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_odrediste(self):
+    def test_izmena_letova_neuspesna_odrediste(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: odrediste"):
             rezultat = letovi.izmena_letova(
                 {},
                 self.pun_let["broj_leta"],
                 self.pun_let["sifra_polazisnog_aerodorma"],
-                "3333333",
+                rand_str(7),
                 self.pun_let["vreme_poletanja"],
                 self.pun_let["vreme_sletanja"],
                 self.pun_let["sletanje_sutra"],
@@ -466,21 +441,21 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_vreme_poletanja(self):
+    def test_izmena_letova_neuspesna_vreme_poletanja(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: vreme leta"):
             rezultat = letovi.izmena_letova(
                 {},
                 self.pun_let["broj_leta"],
                 self.pun_let["sifra_polazisnog_aerodorma"],
                 self.pun_let["sifra_odredisnog_aerodorma"],
-                "3333333",
+                rand_str(7),
                 self.pun_let["vreme_sletanja"],
                 self.pun_let["sletanje_sutra"],
                 self.pun_let["prevoznik"],
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_vreme_sletanja(self):
+    def test_izmena_letova_neuspesna_vreme_sletanja(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: vreme sletanja"):
             rezultat = letovi.izmena_letova(
                 {},
@@ -488,13 +463,13 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["sifra_polazisnog_aerodorma"],
                 self.pun_let["sifra_odredisnog_aerodorma"],
                 self.pun_let["vreme_poletanja"],
-                "5555555",
+                rand_str(7),
                 self.pun_let["sletanje_sutra"],
                 self.pun_let["prevoznik"],
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_sletanje_sutra(self):
+    def test_izmena_letova_neuspesna_sletanje_sutra(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: sletanje sutra"):
             rezultat = letovi.izmena_letova(
                 {},
@@ -508,7 +483,7 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_prevoznik(self):
+    def test_izmena_letova_neuspesna_prevoznik(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost:prevoznik"):
             rezultat = letovi.izmena_letova(
                 {},
@@ -518,11 +493,11 @@ class LetoviTest(unittest.TestCase):
                 self.pun_let["vreme_poletanja"],
                 self.pun_let["vreme_sletanja"],
                 self.pun_let["sletanje_sutra"],
-                None, #ili nesto drugo
+                None,
                 self.pun_let["dani"],
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_dani(self):
+    def test_izmena_letova_neuspesna_dani(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: dani"):
             rezultat = letovi.izmena_letova(
                 {},
@@ -536,7 +511,7 @@ class LetoviTest(unittest.TestCase):
                 None,
                 self.pun_let["model"])
 
-    def test_neuspesna_izmena_letova_model(self):
+    def test_izmena_letova_neuspesna_model(self):
         with self.assertRaises(Exception, msg=f"Provera za nevalidnu vrednost: model"):
             rezultat = letovi.izmena_letova(
                 {},
@@ -568,9 +543,165 @@ class LetoviTest(unittest.TestCase):
         self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani letovi iz fajla")
         self.assertEqual(len(referentni_letovi), len(ucitani_letovi), msg="Dužine učitanih letova nisu jednake")
         for k in ucitani_letovi:
-            ucitani_let = ucitani_letovi[k]
-            self.assertDictEqual(referentni_letovi[k], ucitani_let, msg="Učitani letovi se ne poklapaju")
 
+            print(k)
+            ucitani_let = ucitani_letovi[k]
+            print(ucitani_let["sifra_odredisnog_aerodorma"])
+            self.assertEqual(referentni_letovi[k]["broj_leta"],
+                             ucitani_let["broj_leta"], msg="Učitani letovi se ne poklapaju broj leta")
+            self.assertEqual(referentni_letovi[k]["sifra_polazisnog_aerodroma"], ucitani_let["sifra_polazisnog_aerodroma"],msg="Učitani letovi se ne poklapaju polaziste")
+            self.assertEqual(referentni_letovi[k]["sifra_odredisnog_aerodorma"],
+                             ucitani_let["sifra_odredisnog_aerodorma"], msg="Učitani letovi se ne poklapaju odrediste")
+            self.assertEqual(referentni_letovi[k]["vreme_poletanja"],
+                             ucitani_let["vreme_poletanja"], msg="Učitani letovi se ne poklapaju vreme_poletanja")
+            self.assertEqual(referentni_letovi[k]["vreme_sletanja"],
+                             ucitani_let["vreme_sletanja"], msg="Učitani letovi se ne poklapaju vreme_sletanja")
+            self.assertEqual(referentni_letovi[k]["sletanje_sutra"],
+                             ucitani_let["sletanje_sutra"], msg="Učitani letovi se ne poklapaju sletanje sletanje_sutra")
+            self.assertEqual(referentni_letovi[k]["prevoznik"],
+                             ucitani_let["prevoznik"],
+                             msg="Učitani letovi se ne poklapaju sletanje prevoznik")
+            self.assertEqual(referentni_letovi[k]["cena"],
+                             ucitani_let["cena"],
+                             msg="Učitani letovi se ne poklapaju sletanje cena")
+
+            #self.assertDictEqual(referentni_letovi[k], ucitani_let, msg="Učitani letovi se ne poklapaju")
+
+
+    def get_letovi(self):
+        let1 = copy.deepcopy(self.pun_let)
+        let1["cena"] = 0.1
+        let1["broj_leta"] = "aa44"
+
+        let2 = copy.deepcopy(self.pun_let)
+        let2["cena"] = 100 + random.random() * 200
+        let2["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let3 = copy.deepcopy(self.pun_let)
+        let3["cena"] = 100 + random.random() * 200
+        let3["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let13 = copy.deepcopy(self.pun_let)
+        let13["cena"] = 100 + random.random() * 200
+        let13["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let4 = copy.deepcopy(self.pun_let)
+        let4["cena"] = 100 + random.random() * 200
+        let4["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let4 = copy.deepcopy(self.pun_let)
+        let4["cena"] = 100 + random.random() * 200
+        let4["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let5 = copy.deepcopy(self.pun_let)
+        let5["cena"] = 100 + random.random() * 200
+        let5["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let6 = copy.deepcopy(self.pun_let)
+        let6["cena"] = 100 + random.random() * 200
+        let6["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let7 = copy.deepcopy(self.pun_let)
+        let7["cena"] = 100 + random.random() * 200
+        let7["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let8 = copy.deepcopy(self.pun_let)
+        let8["cena"] = 100 + random.random() * 200
+        let8["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let9 = copy.deepcopy(self.pun_let)
+        let9["cena"] = 100 + random.random() * 200
+        let9["broj_leta"] = rand_str(2) + str(randint(50,99))
+
+        let10 = copy.deepcopy(self.pun_let)
+        let10["cena"] = 100 + random.random() * 200
+        let10["broj_leta"] = rand_str(2) + str(randint(50,99))
+        svi_letovi = {self.pun_let["broj_leta"]: self.pun_let,
+                      let1["broj_leta"]: let1,
+                      let2["broj_leta"]: let2,
+                      let3["broj_leta"]: let3,
+                      let4["broj_leta"]: let4,
+                      let5["broj_leta"]: let5,
+                      let6["broj_leta"]: let6,
+                      let7["broj_leta"]: let7,
+                      let8["broj_leta"]: let8,
+                      let9["broj_leta"]: let9,
+                      let10["broj_leta"]: let10,
+                      let13["broj_leta"]: let13}
+        return svi_letovi
+
+    def test_checkin_validan(self):
+        konkretni_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_i_vreme_polaska": rand_datetime(start=datetime.now() + timedelta(hours=96)),
+            "datum_i_vreme_dolaska": rand_datetime(start=datetime.now() + timedelta(hours=100))
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretni_let)
+        model_aviona = self.pun_let["model"]
+        red = random.randint(1, model_aviona["broj_redova"])
+        pozicija_index = random.randint(0, len(model_aviona["pozicije_sedista"])-1)
+        pozicija = model_aviona["pozicije_sedista"][pozicija_index]
+        letovi.checkin(self.svi_letovi, konkretni_let, red, pozicija)
+        zauzetost = letovi.matrica_zauzetosti(konkretni_let)
+        self.assertTrue(zauzetost[red-1][pozicija_index])
+
+    def test_checkin_prosao_checkin(self):
+        konkretni_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_i_vreme_polaska": rand_datetime(start=datetime.now(), end=datetime.now() + timedelta(hours=24)),
+            "datum_i_vreme_dolaska": rand_datetime(start=datetime.now(), end=datetime.now() + timedelta(hours=30))
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretni_let)
+        model_aviona = self.pun_let["model"]
+        red = random.randint(1, model_aviona["broj_redova"])
+        pozicija_index = random.randint(0, len(model_aviona["pozicije_sedista"])-1)
+        pozicija = model_aviona["pozicije_sedista"][pozicija_index]
+        with self.assertRaises(Exception, msg=f"Provera za checkin koji je prošao"):
+            letovi.checkin(self.svi_letovi, konkretni_let, red, pozicija)
+
+
+    def test_checkin_zauzeto(self):
+        konkretni_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_i_vreme_polaska": rand_datetime(start=datetime.now() + timedelta(days=96)),
+            "datum_i_vreme_dolaska": rand_datetime(start=datetime.now() + timedelta(hours=100))
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretni_let)
+        model_aviona = self.pun_let["model"]
+        red = random.randint(1, model_aviona["broj_redova"])
+        pozicija_index = random.randint(0, len(model_aviona["pozicije_sedista"])-1)
+        pozicija = model_aviona["pozicije_sedista"][pozicija_index]
+        letovi.checkin(self.svi_letovi, konkretni_let, red, pozicija)
+        zauzetost = letovi.matrica_zauzetosti(konkretni_let)
+        self.assertTrue(zauzetost[red-1][pozicija_index])
+
+        with self.assertRaises(Exception, msg=f"Provera za checkin zauzetog mesta"):
+            letovi.checkin(self.svi_letovi, konkretni_let, red, pozicija)
+
+    def test_checkin_nevalidna_pozicija(self):
+        konkretni_let = {
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
+            "datum_i_vreme_polaska": rand_datetime(start=datetime.now() + timedelta(hours=96)),
+            "datum_i_vreme_dolaska": rand_datetime(start=datetime.now() + timedelta(hours=100))
+        }
+        letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretni_let)
+        model_aviona = self.pun_let["model"]
+        validni_red = random.randint(1, model_aviona["broj_redova"])
+        pozicija_index = random.randint(0, len(model_aviona["pozicije_sedista"])-1)
+        validna_pozicija = model_aviona["pozicije_sedista"][pozicija_index]
+
+        with self.assertRaises(Exception, msg=f"Provera za checkin nevalidnog reda"):
+            nevalidni_red = model_aviona["broj_redova"] + random.randint(1, 10)
+            letovi.checkin(self.svi_letovi, konkretni_let, nevalidni_red, validna_pozicija)
+
+        with self.assertRaises(Exception, msg=f"Provera za checkin nevalidne pozicije"):
+            nevalidna_pozicija = chr(ord('A') + len(model_aviona["pozicije_sedista"]) + random.randint(1, 10))
+            letovi.checkin(self.svi_letovi, konkretni_let, validni_red, nevalidna_pozicija)
 
 if __name__ == '__main__':
     unittest.main()
+

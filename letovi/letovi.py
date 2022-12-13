@@ -16,7 +16,16 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
     pass
 
 def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odrediste: str =""):
-    pass
+    filtrirani_letovi=[]
+    for let in svi_letovi.values():
+        if let["sifra_polazisnog_aerodroma"]==polaziste and let["sifra_odredisnog_aerodorma"]==odrediste:
+            filtrirani_letovi.append(let)
+    sortirani_letovi=sorted(filtrirani_letovi, key=lambda i: i['cena'])
+    if len(sortirani_letovi) <=10:
+        return sortirani_letovi
+    else:
+        return sortirani_letovi[:11]
+
 
 # 7 zad nema sad???
 def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
@@ -36,14 +45,13 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
     check_list=[(str_type,str),
                 (dict_type,dict),
                 (bool_type,bool),
-                (list_type,list),
-                (int_type,int)]
+                (list_type,list)]
 
     for var_type_tuple in check_list:
         var_list=var_type_tuple[0]
         var_type=var_type_tuple[1]
-        if not all(x for x in var_list):
-            return f"{var_type} is empty"
+        #if not all(x for x in var_list):
+        #    return f"{var_type} is empty"
         if not all(isinstance(x,var_type) for x in var_list):
             raise TypeError(var_type)
 
@@ -63,10 +71,6 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
 
     if time_error_raise: raise TypeError("time")
 
-
-
-
-
     svi_letovi[broj_leta]=let
     return svi_letovi
 
@@ -75,7 +79,7 @@ def izmena_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma:
                      dani: list, model: dict, cena: float)-> dict:
     if not (broj_leta in svi_letovi):
         raise  KeyError("let ne postoji")
-        print(LookupError)
+        return svi_letovi
 
 
     let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,
@@ -134,10 +138,13 @@ def ucitaj_letove_iz_fajla(putanja: str, separator: str) -> dict:
         let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,"sifra_odredisnog_aerodorma":sifra_odredisnog_aerodorma,
                "vreme_poletanja": vreme_poletanja, "vreme_sletanja": vreme_sletanja,
                "sletanje_sutra": sletanje_sutra, "prevoznik": prevoznik, "dani": dani, "model": model, "cena": cena}
+
         letovi_return[broj_leta]=let
     return letovi_return
 
 
 if __name__ == "__main__":
     svi_letovi={}
-    kreiranje_letova(svi_letovi,"123","NCE","BEG","12:00","10:00AM",False,"WizzAir",[PONEDELJAK,SREDA,SUBOTA],{"marka":"Boing","sifra":"747"},25000)
+    #kreiranje_letova(svi_letovi,"123","NCE","BEG","12:00","10:00AM",False,"WizzAir",[PONEDELJAK,SREDA,SUBOTA],{"marka":"Boing","sifra":"747"},25000)
+    svi_letovi=ucitaj_letove_iz_fajla('./test.csv',',')
+    #print(svi_letovi)

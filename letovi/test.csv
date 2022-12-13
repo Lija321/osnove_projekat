@@ -1,1 +1,13 @@
-123,25000.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+1,25000.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+2,123.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+3,20.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+4,250.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,DUB,False,12:00,13:00
+5,941.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+6,1241.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,PAR,False,12:00,13:00
+7,429.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+8,4960.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+9,546.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+10,823.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NYC,False,12:00,13:00
+11,122.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+12,512.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
+13,19.0,['ponedeljak'~ 'sreda'~ 'subota'],{'marka': 'Boing'~ 'sifra': '747'},WizzAir,BEG,NCE,False,12:00,13:00
