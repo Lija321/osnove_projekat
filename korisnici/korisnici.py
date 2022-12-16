@@ -83,21 +83,21 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         fun = provera[0]
         prosledi = provera[1]
         greska, poruka = fun(prosledi)
-        if greska: return poruka
+        if greska: raise Exception(poruka)
 
     # PROVERA ULOGE
     if not (uloga == konstante.ULOGA_PRODAVAC or uloga == konstante.ULOGA_KORISNIK or uloga == konstante.ULOGA_ADMIN):
-        print(uloga, konstante.ULOGA_KORISNIK)
-        return "Uloga nije validna"
+        #print(uloga, konstante.ULOGA_KORISNIK)
+        raise Exception("Uloga nije validna")
 
     if azuriraj: # obirisi sa starim imenom i prosledi novo
         if staro_korisnicko_ime != korisnicko_ime and korisnicko_ime in svi_korisnici:
-            return "Korisničko ime je već zauzeto: očekuje se greška"
+            raise Exception("Korisničko ime je već zauzeto: očekuje se greška")
 
         identifiktor = staro_korisnicko_ime
         if not identifiktor in svi_korisnici:
             # print("Korisnik ne postoji")
-            return "Korisnik ne postoji"
+            raise Exception("Korisnik ne postoji")
         del svi_korisnici[staro_korisnicko_ime]
         svi_korisnici[korisnicko_ime] = korisnik_podaci
 
@@ -105,7 +105,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         identifiktor = korisnicko_ime
         if identifiktor in svi_korisnici:
             # print("Korisnik vec postoji")
-            return "Korisnik vec postoji"
+            raise Exception("Korisnik vec postoji")
         svi_korisnici[identifiktor] = korisnik_podaci
     sacuvaj_korisnike('./test_korisnici.csv',',',svi_korisnici)
     return svi_korisnici
@@ -119,8 +119,8 @@ Funkcija koja čuva podatke o svim korisnicima u fajl na zadatoj putanji sa zada
 def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
     if not type(svi_korisnici) is dict:
         # print("Greska")
-        return "Greska: svi_korisnici nije dict"
-
+        #return "Greska: svi_korisnici nije dict"
+        raise Exception("Greska: svi_korisnici nije dict")
     with open(putanja, 'w') as f: #DODAJ ZA BOLJE CUVANJE
         for korisnik in svi_korisnici.values():
             nov_red = list(korisnik.values())
@@ -165,10 +165,10 @@ def login(svi_korisnici, korisnicko_ime, lozinka) -> dict:
         if korisnik_podaci["lozinka"] == lozinka:
             return korisnik_podaci
         else:
-            return "Login pogrešna lozinka"
+            raise Exception("Login pogrešna lozinka")
     except KeyError:
         # print("Korisnik nije pronadjen")
-        return "Login nepostojeći"
+        raise Exception("Login nepostojeći")
 
 """
 Funkcija koja vrsi log out
