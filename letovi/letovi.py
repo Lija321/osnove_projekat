@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timedelta
 import time
 
-import konkretni_letovi
 import model
 
 """
@@ -21,7 +20,39 @@ vreme_poletanja i vreme_sletanja su u formatu hh:mm
 """
 def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = "", odrediste: str = "", datum_polaska: str = "",datum_dolaska: str = "",
                     vreme_poletanja: str = "", vreme_sletanja: str = "", prevoznik: str = "")->list:
-    lista_kriterijuma=[polaziste,odrediste,datum_dolaska,datum_polaska,vreme_poletanja,vreme_sletanja,prevoznik]
+    lista_kriterijuma=[(polaziste,"sifra_polazisnog_aerodroma",1), #1 za let, 0 za konkretan let
+                       (odrediste,"sifra_odredisnog_aerodorma",1),
+                       (datum_dolaska,'datum_i_vreme_dolaska',0),
+                       (datum_polaska,'datum_i_vreme_polaska',0),
+                       (vreme_poletanja,'vreme_poletanja',1), #konkreta
+                       (vreme_sletanja,'vreme_sletanja',1),   #konkretan
+                       (prevoznik,'prevoznik',1)]
+    letovi_ret=[]
+
+    test_list=lista_kriterijuma[:]
+    lista_kriterijuma=[]
+    for provera in test_list:
+        if str(provera[0])!="":
+            lista_kriterijuma.append(provera)
+
+
+
+
+    for let in konkretni_letovi.values():
+        ispunjava_filtere=True
+        for item in lista_kriterijuma:
+            val,key,id=item
+            if id==0 and let[key] != val:
+                ispunjava_filtere=False
+            elif id==1:
+                if not svi_letovi[let['broj_leta']][key]==val:
+                    ispunjava_filtere==False
+
+
+        if ispunjava_filtere:
+            letovi_ret.append(let)
+    return letovi_ret
+
 
 
 
@@ -228,10 +259,6 @@ def ucitaj_letove_iz_fajla(putanja: str, separator: str) -> dict:
 
 
 if __name__ == "__main__":
-    svi_letovi={}
-    svi_letovi=kreiranje_letova(svi_letovi,"JU50","BGE","NCE","12:00","15:00",False,"Wizzair",[SUBOTA,PONEDELJAK],{"marka":'BOING',"broj_sedista":50},123.0,datetime(2011,11,3,17,23),datetime(2022,10,4,15,00))
-    sacuvaj_letove("./test.csv",',',svi_letovi)
-    novi_letovi=ucitaj_letove_iz_fajla("./test.csv",',')
-    print(svi_letovi)
-    print(novi_letovi)
-    print(svi_letovi==novi_letovi)
+    svi_letovi=ucitaj_letove_iz_fajla("./test.csv",',')
+    konkretni_letovi= konkretni_letovi_module.ucitaj_konkretne_letove("./konk_let.csv",',')
+    #print(konkretni_letovi)

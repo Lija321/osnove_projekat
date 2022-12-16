@@ -7,7 +7,7 @@ def kreiraj_model_aviona(svi_modeli, id:int ,naziv:str ,broj_redova: int,pozicij
 
 def vrati_sedista(model: dict) -> list:
     red=['X']*len(model["pozicija_sedista"])
-    redovi=red*model[broj_redova]
+    redovi=[red]*model['broj_redova']
     return redovi
 
 
