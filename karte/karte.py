@@ -16,14 +16,19 @@ recnik prodavac moze imati id i ulogu
 CHECKPOINT 2: kupuje se samo za ulogovanog korisnika i bez povezanih letova.
 ODBRANA: moguće je dodati saputnike i odabrati povezane letove. 
 """
-def sledeci_broj_karte(sve_karte:dict):
+def sledeci_broj_karte_set(sve_karte:dict):
     ids=sve_karte.keys()
     ids=list(ids)
     ids.sort()
     if len(ids)>0: id=ids[-1]+1
-    else: id=0
+    else: id=1
 
     return id
+
+"""
+Brojačka promenljiva koja se automatski povećava pri kreiranju nove karte.
+"""
+sledeci_broj_karte = 1
 
 
 def kupovina_karte(
@@ -40,7 +45,7 @@ def kupovina_karte(
 
     ima_slobodno_mesto=False
     for red in slobodna_mesta:
-        if 'X' in red:
+        if True in red:
             ima_slobodno_mesto=True
             break
     if slobodna_mesta==[]:
@@ -49,7 +54,9 @@ def kupovina_karte(
     if ima_slobodno_mesto==False:
         raise Exception("Nema slobodnih mesta")
 
-    broj_karte=sledeci_broj_karte(sve_karte)
+
+    sledeci_broj_karte=sledeci_broj_karte_set(sve_karte)
+    broj_karte=sledeci_broj_karte
     prodavac=kwargs['prodavac']
     datum_prodaje=kwargs['datum_prodaje']
 
@@ -62,7 +69,7 @@ def kupovina_karte(
         "sifra_konkretnog_leta": sifra_konkretnog_leta,
         "status": common.konstante.STATUS_NEREALIZOVANA_KARTA,
         "kupac":kupac,
-        #"obrisana": False,
+        "obrisana": False,
         "datum_prodaje": datum_prodaje
     }
 

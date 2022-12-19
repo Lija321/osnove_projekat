@@ -110,7 +110,8 @@ class KarteTest(unittest.TestCase):
             "status": konstante.STATUS_NEREALIZOVANA_KARTA,
             "kupac": korisnik,
             "prodavac": prodavac,
-            "datum_prodaje": datetime.now()
+            "datum_prodaje": datetime.now(),
+            "obrisana": False,
         }
         karta = karte.kupovina_karte(
             {},

@@ -50,5 +50,6 @@ if __name__ == "__main__":
         "obrisana": bool,
         "datum_prodaje": datetime,
         "prodavac": str,
-        "kupac": str
+        "kupac": str,
+        "sifra_sedista": str
     }
