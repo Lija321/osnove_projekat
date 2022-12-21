@@ -82,7 +82,7 @@ def kupovina_karte(
 """
 Vraća sve nerealizovane karte za korisnika u listi.
 """
-def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: dict) -> list:
+def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: iter) -> list:
     karte_ret=[]
     #for karta in sve_karte.values():
     for karta in sve_karte:

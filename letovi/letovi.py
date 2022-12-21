@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timedelta
 import time
 
-import model
 
 """
 Funkcija koja omogucuje korisniku da pregleda informacije o letovima
@@ -50,7 +49,7 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
     test_list=lista_kriterijuma[:]
     lista_kriterijuma=[]
     for provera in test_list:
-        if str(provera[0])!="":
+        if str(provera[0])!="" and not provera[0] is None:
             lista_kriterijuma.append(provera)
 
 
@@ -103,13 +102,15 @@ def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra
                   (bool_type, bool),
                   (list_type, list),
                   (datetime_type, datetime)]
+
     for var_type_tuple in check_list:
         var_list = var_type_tuple[0]
         var_type = var_type_tuple[1]
-        # if not all(x for x in var_list):
+        #if not all(len(x)==0 for x in var_list):
         #    return f"{var_type} is empty"
         if not all(isinstance(x, var_type) for x in var_list):
             raise TypeError(f"{var_type} je nevalidan")
+
     time_error_raise = False
     for time_input in time_type:
         test1 = False
@@ -127,13 +128,28 @@ def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra
 
     if not (broj_leta[:2].isalpha() and broj_leta[2:].isnumeric() and len(broj_leta) == 4):
         raise Exception("Nevalidan broj leta")
-    if cena <= 0:
-        raise Exception("Nevalidna cena")
+    if cena <= 0: raise Exception("Nevalidna cena")
 
+    if prevoznik=="": raise Exception("Nevalidan prevoznik")
+    if len(dani)==0: raise Exception("Dani prazni")
     if len(sifra_polazisnog_aerodroma)!=3: raise Exception("Sifra polazisnog aerodroma neispravnog formata")
     if len(sifra_odredisnog_aerodorma) != 3: raise Exception("Sifra odredisnog aerodroma neispravnog formata")
-
-
+    if not datum_pocetka_operativnosti < datum_kraja_operativnosti: raise Exception("Pocetak operativnosti pre kraja operativnosti")
+    provera_validnosti_modela(model)
+def provera_validnosti_modela(model):
+    '''model_aviona_cmpr = {
+        "id": int,
+        "naziv": str,
+        "broj_redova": int,
+        "pozicije_sedista": list  # lista stringova
+    }'''
+    key_list=['id','naziv','broj_redova','pozicije_sedista']
+    for key in key_list:
+        if not key in model.keys(): raise Exception(f"Fali key {key} u modelu")
+    if not isinstance(model['id'],int): raise TypeError('Id nije int')
+    if model['naziv']=="": raise Exception('Naziv prazan string')
+    if not model['broj_redova']>0: raise Exception('Greska u broju redova')
+    if model['pozicije_sedista']==[]: raise Exception('Greska u poziciji sedista')
 
 """
 Funkcija koja kreira novi rečnik koji predstavlja let sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
@@ -145,50 +161,18 @@ CHECKPOINT2: Baca grešku sa porukom ako podaci nisu validni.
 def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                      vreme_poletanja: str, vreme_sletanja: str, sletanje_sutra: bool, prevoznik: str,
                      dani: list, model: dict, cena: int,datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime):
-    let={"broj_leta":broj_leta,"sifra_polazisnog_aerodroma":sifra_polazisnog_aerodroma, "sifra_odredisnog_aerodorma":sifra_odredisnog_aerodorma,
-         "vreme_poletanja":vreme_poletanja,"vreme_sletanja":vreme_sletanja,
-         "sletanje_sutra":sletanje_sutra,"prevoznik":prevoznik,"dani":dani,"model":model,"cena":cena,
-         "datum_pocetka_operativnosti":datum_pocetka_operativnosti,"datum_kraja_operativnosti":datum_kraja_operativnosti}
 
-    str_type=[broj_leta,sifra_odredisnog_aerodorma,sifra_polazisnog_aerodroma,prevoznik]
-    dict_type=[svi_letovi,model]
-    time_type=[vreme_sletanja,vreme_poletanja]
-    bool_type=[sletanje_sutra]
-    list_type=[dani]
-    int_type=[cena]
-    datetime_type=[datum_pocetka_operativnosti,datum_kraja_operativnosti]
 
-    check_list=[(str_type,str),
-                (dict_type,dict),
-                (bool_type,bool),
-                (list_type,list),
-                (datetime_type,datetime)]
-    for var_type_tuple in check_list:
-        var_list=var_type_tuple[0]
-        var_type=var_type_tuple[1]
-        #if not all(x for x in var_list):
-        #    return f"{var_type} is empty"
-        if not all(isinstance(x,var_type) for x in var_list):
-            raise TypeError(f"{var_type} je nevalidan")
-    time_error_raise=False
-    for time_input in time_type:
-        test1=False
-        test2=False
-        try:
-            time.strptime(time_input,"%H:%M%p")
-        except ValueError:
-            test1=True
-        try:
-            time.strptime(time_input, "%H:%M")
-        except ValueError:
-            test2=True
-        time_error_raise=time_error_raise or (test1 and test2)
-    if time_error_raise: raise TypeError("time")
+    let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,
+           "sifra_odredisnog_aerodorma": sifra_odredisnog_aerodorma,
+           "vreme_poletanja": vreme_poletanja, "vreme_sletanja": vreme_sletanja,
+           "sletanje_sutra": sletanje_sutra, "prevoznik": prevoznik, "dani": dani, "model": model, "cena": cena,
+           "datum_pocetka_operativnosti": datum_pocetka_operativnosti,
+           "datum_kraja_operativnosti": datum_kraja_operativnosti}
 
-    if not(broj_leta[:2].isalpha() and broj_leta[2:].isnumeric() and len(broj_leta)==4):
-        raise Exception("Nevalidan broj leta")
-    if cena <=0:
-        raise Exception("Nevalidna cena")
+    provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
+                                    svi_letovi, model, vreme_sletanja, vreme_poletanja, sletanje_sutra, dani, cena,
+                                    datum_pocetka_operativnosti, datum_kraja_operativnosti)
 
 
     svi_letovi[broj_leta]=let

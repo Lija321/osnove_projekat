@@ -238,19 +238,19 @@ class KarteTest(unittest.TestCase):
             {
                 "broj_karte": 1,
                 "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
-                "konretni_let": self.konkretan_let,
+                "sifra_konkretnog_leta": self.konkretan_let,
                 "status": konstante.STATUS_NEREALIZOVANA_KARTA
             },
             {
                 "broj_karte": 1,
                 "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
-                "konretni_let": self.konkretan_let,
+                "sifra_konkretnog_leta": self.konkretan_let,
                 "status": konstante.STATUS_REALIZOVANA_KARTA
             },
             {
                 "broj_karte": 2,
                 "putnici": [{"korisnicko_ime": rand_str(10)}, {"korisnicko_ime": rand_str(10)}],
-                "konretni_let": self.konkretan_let,
+                "sifra_konkretnog_leta": self.konkretan_let,
                 "status": konstante.STATUS_NEREALIZOVANA_KARTA
             },
         ]

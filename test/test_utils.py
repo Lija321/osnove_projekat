@@ -76,3 +76,44 @@ def rand_seat(max_row: int, max_col: int):
 
 def rand_seat_coords(max_row, max_col):
     return random.randint(ord('A'), ord('A')+max_col), random.randint(1, max_row)
+
+def rand_valid_aerodrom():
+    return {
+        "skracenica": rand_str(3),
+        "pun_naziv": rand_str(7),
+        "grad": rand_str(7),
+        "drzava": rand_str(7),
+        }
+
+
+def gen_rand_valid_aerodrom(num):
+    for i in range(num):
+        yield rand_valid_aerodrom()
+
+
+def rand_valid_model_aviona():
+    return {
+        "naziv": rand_str(3),
+        "broj_redova": random.randint(0,20),
+        "pozicija_sedista": rand_seat_positions(),
+        "id": random.randint(0,20),
+    }
+
+
+def gen_rand_valid_model_aviona(num):
+    for i in range(num):
+        yield rand_valid_model_aviona()
+
+
+def rand_valid_konkretan_let():
+    return {
+        "sifra": random.randint(0,100),
+        "broj_leta": rand_str(4),
+        "datum_i_vreme_polaska": rand_datetime(),
+        "datum_i_vreme_dolaska": rand_datetime(),
+    }
+
+
+def gen_rand_valid_konkretan_let(num):
+    for i in range(num):
+        yield rand_valid_konkretan_let()
