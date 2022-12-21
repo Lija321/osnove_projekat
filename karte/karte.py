@@ -87,8 +87,12 @@ def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: dict) -> list:
     #for karta in sve_karte.values():
     for karta in sve_karte:
         print(json.dumps((karta)))
-        if karta['kupac']==korisnik and karta['status']==common.konstante.STATUS_NEREALIZOVANA_KARTA:
-            karte_ret.append(karta)
+        if karta["status"]!=konstante.STATUS_NEREALIZOVANA_KARTA: continue
+        putnici=karta['putnici']
+        for putnik in putnici:
+            if putnik['korisnicko_ime']==korisnik['korisnicko_ime']:
+                karte_ret.append(karta)
+                continue
     return karte_ret
 
 
