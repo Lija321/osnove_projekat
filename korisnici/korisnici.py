@@ -1,10 +1,10 @@
 import common.konstante
 from common import konstante
-
+from ast import literal_eval
 
 def proveri_pasos(pasos):
     pasos = str(pasos)
-    if not all(x.isdigit() for x in pasos):
+    if not all(x.isdigit() for x in pasos):#Ako se desi da jedan znak nije cifra
         return True, "Pasoš nebrojevni string"
     if len(pasos) > 9:
         return True, "Pasoš više od 9 cifara"
@@ -15,19 +15,18 @@ def proveri_pasos(pasos):
 
 
 def proveri_telefon(telefon):
-    telefon = str(telefon)
-    # print(telefon)
-    if not all(x.isdigit() for x in telefon):
+    telefon = str(telefon) #U string za svaki slucaj
+    if not all(x.isdigit() for x in telefon):#Ako se desi da jedan znak nije cifra
         return True, "Broj telefona nije validan"
     return False, ""
 
 
 def proveri_email(email):
     if not '@' in email:
-        return True, "Email provera bez @"
+        return True, "Email fali @"
     email = email.split('@')
     email = email[1]
-    if email.count('.') != 1:
+    if email.count('.') != 1:#Ako ima vise poddomena, odnsno tacaka na kraju
         return True, "Email provera sa @ ali sa više poddomena"
     return False, ""
 
@@ -73,7 +72,10 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         'telefon': str(telefon), 'pol': pol,
         'uloga': uloga}
 
-    provera_funckije = [[proveri_nedostajucu_vernost, korisnik_podaci],
+    provera_nedostajanje={'ime': ime, 'prezime': prezime,
+        'korisnicko_ime': korisnicko_ime, 'lozinka': lozinka}
+
+    provera_funckije = [[proveri_nedostajucu_vernost, provera_nedostajanje],
                         [proveri_pasos, pasos],
                         [proveri_telefon, telefon],
                         [proveri_email, email]]
@@ -87,45 +89,40 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
 
     # PROVERA ULOGE
     if not (uloga == konstante.ULOGA_PRODAVAC or uloga == konstante.ULOGA_KORISNIK or uloga == konstante.ULOGA_ADMIN):
-        #print(uloga, konstante.ULOGA_KORISNIK)
         raise Exception("Uloga nije validna")
 
-    if azuriraj: # obirisi sa starim imenom i prosledi novo
+    if azuriraj: #Ako se menja ime [staro i novo razlicito] i novo vec postoji
         if staro_korisnicko_ime != korisnicko_ime and korisnicko_ime in svi_korisnici:
             raise Exception("Korisničko ime je već zauzeto: očekuje se greška")
 
-        identifiktor = staro_korisnicko_ime
-        if not identifiktor in svi_korisnici:
-            # print("Korisnik ne postoji")
+        if not staro_korisnicko_ime in svi_korisnici: #Ako to ime ne postoji ne moze se azurirati
             raise Exception("Korisnik ne postoji")
-        del svi_korisnici[staro_korisnicko_ime]
-        svi_korisnici[korisnicko_ime] = korisnik_podaci
+
+        del svi_korisnici[staro_korisnicko_ime]#Brisi staro
+        svi_korisnici[korisnicko_ime] = korisnik_podaci#Dodaj novo
 
     else: # samo promeni unutar korisnika
         identifiktor = korisnicko_ime
         if identifiktor in svi_korisnici:
-            # print("Korisnik vec postoji")
             raise Exception("Korisnik vec postoji")
         svi_korisnici[identifiktor] = korisnik_podaci
-    sacuvaj_korisnike('./test_korisnici.csv',',',svi_korisnici)
+
+    import sys
+    if not 'unittest' in sys.modules.keys():
+        sacuvaj_korisnike('./fajlovi/korisnici.csv',',',svi_korisnici)
     return svi_korisnici
 
 
 """
 Funkcija koja čuva podatke o svim korisnicima u fajl na zadatoj putanji sa zadatim separatorom.
-"""  # GOTOVO
-
-
+"""
 def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
     if not type(svi_korisnici) is dict:
-        # print("Greska")
-        #return "Greska: svi_korisnici nije dict"
         raise Exception("Greska: svi_korisnici nije dict")
-    with open(putanja, 'w') as f: #DODAJ ZA BOLJE CUVANJE
+    with open(putanja, 'w') as f:
         for korisnik in svi_korisnici.values():
-            nov_red = list(korisnik.values())
-            nov_red = separator.join(str(val) for val in nov_red) + '\n'
-            f.write(nov_red)
+            red = str(korisnik) + '\n'  # cuva red po red kao string
+            f.write(red)
 
 
 """
@@ -141,14 +138,11 @@ def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:
     korisnici_return = {}
     for red in korisnici:
         red = red.rstrip('\n')
-        red = red.split(separator)
-        korisnik_podaci = {
-            'ime': red[0], 'prezime': red[1],
-            'korisnicko_ime': red[2], 'lozinka': red[3], 'email': red[4],
-            'pasos': red[5], 'drzavljanstvo': red[6],
-            'telefon': red[7], 'pol': red[8],
-            'uloga': red[9]}
-        korisnici_return[red[2]] = korisnik_podaci
+        if red == '': continue
+        korisnik = literal_eval(str(red))  # safe eval svakog reda
+
+        korisnici_return[korisnik['korisnicko_ime']]= korisnik
+
     return korisnici_return
 
 
@@ -161,25 +155,22 @@ ODBRANA: Baca grešku sa porukom ako korisnik nije pronađen.
 
 def login(svi_korisnici, korisnicko_ime, lozinka) -> dict:
     try:
-        korisnik_podaci = svi_korisnici[korisnicko_ime]
+        korisnik_podaci = svi_korisnici[korisnicko_ime] #ako korisnicko  ime nepostoji baci ce exception koji keyerror
         if korisnik_podaci["lozinka"] == lozinka:
             return korisnik_podaci
         else:
             raise Exception("Login pogrešna lozinka")
     except KeyError:
         # print("Korisnik nije pronadjen")
-        raise Exception("Login nepostojeći")
+        raise Exception("Korisnicko ime ne postoji")
 
 """
 Funkcija koja vrsi log out
 *
 """
 def logout(korisnicko_ime: str):
-    pass
+    print(f"{korisnicko_ime} uspesno odjavljen")
+    return
 
 if __name__ == "__main__":
-    svi_korisnici = ucitaj_korisnike_iz_fajla('./test_korisnici.csv', '|')
-    print(svi_korisnici)
-    # svi_korisnici={}
-    #svi_korisnici=kreiraj_korisnika(svi_korisnici, False, konstante.ULOGA_KORISNIK,None, 'Antonio1997','antoni', 'Antonip', 'Valensija','antoni@valensija.com','123456789', 'Srpsko', '063595793', 'm')
-    #sacuvaj_korisnike('./test_korisnici.csv','|',svi_korisnici)
+   pass

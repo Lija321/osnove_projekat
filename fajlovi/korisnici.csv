@@ -1,0 +1,4 @@
+{'ime': 'Dejan', 'prezime': 'Lisica', 'korisnicko_ime': 'Lija321', 'lozinka': 'Lisica2003!', 'email': 'lisica@gmail.com', 'pasos': '123456789', 'drzavljanstvo': 'Srbija', 'telefon': '063123123', 'pol': 'Muski', 'uloga': 'korisnik'}
+{'ime': 'Toni', 'prezime': 'Tonic', 'korisnicko_ime': 'tonituesday', 'lozinka': 'password', 'email': 'toni@gmail.com', 'pasos': '789456123', 'drzavljanstvo': 'Srbija', 'telefon': '060111222', 'pol': 'Muski', 'uloga': 'korisnik'}
+{'ime': 'Antonio', 'prezime': 'Valensija', 'korisnicko_ime': 'antoni123', 'lozinka': 'westham321', 'email': 'antonio@westham.com', 'pasos': '555777666', 'drzavljanstvo': 'Engleska', 'telefon': '063999888', 'pol': 'Muski', 'uloga': 'korisnik'}
+{'ime': 'Petar', 'prezime': 'Peric', 'korisnicko_ime': 'admin', 'lozinka': '12345678', 'email': 'admin@aerodrom.com', 'pasos': '456123789', 'drzavljanstvo': 'Italija', 'telefon': '063232323', 'pol': 'Muski', 'uloga': 'admin'}

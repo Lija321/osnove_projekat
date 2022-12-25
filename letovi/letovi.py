@@ -18,7 +18,10 @@ Prolazi kroz sve redove i sve poziciej sedišta i postavlja ih na "nezauzeto".
 def podesi_matricu_zauzetosti(svi_letovi:dict, konkretan_let:dict): #SAMO BOG ZNA ZASTO
     broj_leta=konkretan_let['broj_leta']
     ret=svi_letovi[broj_leta]['model']['pozicije_sedista']
+    for i in range(0,len(ret)):
+        ret[i]=False
     ret=[ret]*svi_letovi[broj_leta]['model']['broj_redova']
+
     return ret
 
 """
@@ -39,14 +42,14 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
                     vreme_poletanja: str = "", vreme_sletanja: str = "", prevoznik: str = "")->list:
     lista_kriterijuma=[(polaziste,"sifra_polazisnog_aerodroma",1), #1 za let, 0 za konkretan let
                        (odrediste,"sifra_odredisnog_aerodorma",1),
-                       (datum_dolaska,'datum_i_vreme_dolaska',0),
-                       (datum_polaska,'datum_i_vreme_polaska',0),
-                       (vreme_poletanja,'vreme_poletanja',1), #konkreta
-                       (vreme_sletanja,'vreme_sletanja',1),   #konkretan
+                       (datum_dolaska,'datum_i_vreme_dolaska',0), #konkreta
+                       (datum_polaska,'datum_i_vreme_polaska',0), #konkretan
+                       (vreme_poletanja,'vreme_poletanja',1),
+                       (vreme_sletanja,'vreme_sletanja',1),
                        (prevoznik,'prevoznik',1)]
     letovi_ret=[]
 
-    test_list=lista_kriterijuma[:]
+    test_list=lista_kriterijuma[:] #Izbacivanje "" i None
     lista_kriterijuma=[]
     for provera in test_list:
         if str(provera[0])!="" and not provera[0] is None:
@@ -59,14 +62,12 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
         ispunjava_filtere=True
         for item in lista_kriterijuma:
             val,key,id=item
-            if id==0 and let[key] != val:
+            if id==0 and let[key] != val: #Ako id !=0 let[key] se nece ni proveravati pa ni ne izbacuje key error
                 ispunjava_filtere=False
-            elif id==1:
+            elif id==1: #isto kao else al da bude jasnije
                 if not svi_letovi[let['broj_leta']][key]==val:
                     ispunjava_filtere==False
-
-
-        if ispunjava_filtere:
+        if ispunjava_filtere:  #Ako nijedan filter nije pao -> stavi
             letovi_ret.append(let)
     return letovi_ret
 
@@ -76,19 +77,24 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
 #IZBIRSANO SA GITLABA
 def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odrediste: str =""):
     filtrirani_letovi=[]
-    for let in svi_letovi.values():
+    for let in svi_letovi.values(): #Prvo uzmi one letovi sa datim polazistem
         if let["sifra_polazisnog_aerodroma"]==polaziste and let["sifra_odredisnog_aerodorma"]==odrediste:
             filtrirani_letovi.append(let)
+
+    #Sortiranje po ceni; iskreno ne znam kako radi
     sortirani_letovi=sorted(filtrirani_letovi, key=lambda i: i['cena'])
+
+    #Ako ih je manje od 10 vrati sve
     if len(sortirani_letovi) <=10:
         return sortirani_letovi
-    else:
+    else: #Inace vrati prvih 10
         return sortirani_letovi[:11]
 
 
 def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
                                     svi_letovi, model,vreme_sletanja, vreme_poletanja,sletanje_sutra,dani,cena,
                                     datum_pocetka_operativnosti,datum_kraja_operativnosti):
+    #Svi u listi istog tipa
     str_type = [broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik]
     dict_type = [svi_letovi, model]
     time_type = [vreme_sletanja, vreme_poletanja]
@@ -97,12 +103,14 @@ def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra
     int_type = [cena]
     datetime_type = [datum_pocetka_operativnosti, datum_kraja_operativnosti]
 
+    #Zajedno sa svojim tipom
     check_list = [(str_type, str),
                   (dict_type, dict),
                   (bool_type, bool),
                   (list_type, list),
                   (datetime_type, datetime)]
 
+    #Idi krozlistu i proveri jel svaki dobrog tipa
     for var_type_tuple in check_list:
         var_list = var_type_tuple[0]
         var_type = var_type_tuple[1]
@@ -111,7 +119,7 @@ def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra
         if not all(isinstance(x, var_type) for x in var_list):
             raise TypeError(f"{var_type} je nevalidan")
 
-    time_error_raise = False
+    time_error_raise = False #Provera vremean
     for time_input in time_type:
         test1 = False
         test2 = False
@@ -123,13 +131,16 @@ def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra
             time.strptime(time_input, "%H:%M")
         except ValueError:
             test2 = True
+        #Ako je pao oba testa (test1 and test2) ce biti true i zajedno sa or davace true do kraja
         time_error_raise = time_error_raise or (test1 and test2)
     if time_error_raise: raise TypeError("time")
 
+    #Provera formata
     if not (broj_leta[:2].isalpha() and broj_leta[2:].isnumeric() and len(broj_leta) == 4):
         raise Exception("Nevalidan broj leta")
-    if cena <= 0: raise Exception("Nevalidna cena")
+    if cena <= 0: raise Exception("Nevalidna cena") #Cena mora veca od nul3
 
+    #Provera duzine
     if prevoznik=="": raise Exception("Nevalidan prevoznik")
     if len(dani)==0: raise Exception("Dani prazni")
     if len(sifra_polazisnog_aerodroma)!=3: raise Exception("Sifra polazisnog aerodroma neispravnog formata")
@@ -145,11 +156,14 @@ def provera_validnosti_modela(model):
     }'''
     key_list=['id','naziv','broj_redova','pozicije_sedista']
     for key in key_list:
-        if not key in model.keys(): raise Exception(f"Fali key {key} u modelu")
+        if not key in model.keys(): raise Exception(f"Fali key {key} u modelu") #Provera jel su svi kljucevi tu
+
+    #Provera jel sve kako treba
     if not isinstance(model['id'],int): raise TypeError('Id nije int')
     if model['naziv']=="": raise Exception('Naziv prazan string')
     if not model['broj_redova']>0: raise Exception('Greska u broju redova')
-    if model['pozicije_sedista']==[]: raise Exception('Greska u poziciji sedista')
+    # Ovaj drugi jel gleda dal su pozcije stringovi
+    if model['pozicije_sedista']==[] and all(x.isalpha() for x in model['pozicije_sedista']): raise Exception('Greska u poziciji sedista')
 
 """
 Funkcija koja kreira novi rečnik koji predstavlja let sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
@@ -173,8 +187,9 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
     provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
                                     svi_letovi, model, vreme_sletanja, vreme_poletanja, sletanje_sutra, dani, cena,
                                     datum_pocetka_operativnosti, datum_kraja_operativnosti)
-
-
+    import sys
+    if not 'unittest' in sys.modules.keys():
+        sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
     svi_letovi[broj_leta]=let
     return svi_letovi
 
@@ -202,9 +217,8 @@ def izmena_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma:
     provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
                                     svi_letovi, model,vreme_sletanja, vreme_poletanja,sletanje_sutra,dani,cena,
                                     datum_pocetka_operativnosti,datum_kraja_operativnosti)
-
-    for key in let.keys():
-        svi_letovi[broj_leta][key]=let[key]
+    svi_letovi[broj_leta]=let
+    sacuvaj_letove('../fajlovi/letovi.csv', ',', svi_letovi)
     return svi_letovi
 
 """
@@ -223,10 +237,11 @@ def sacuvaj_letove(putanja: str, separator: str, svi_letovi: dict):
             let = let[1]
 
             let_keys=list(let.keys())
-            let_keys.sort()
+            let_keys.sort()#Da bi svaki put bilo isto
             for key in let_keys:
+                #Ako je separator , moze nastati greska ako se cuva , pa se menja sa ~
                 nov_red+=str(let[key]).replace(',','~')+separator
-            nov_red = nov_red[:-1] #oduzimanje bespotrebnog separatora"""
+            nov_red = nov_red[:-1] #oduzimanje bespotrebnog separatora
 
             nov_red+='\n'
             f.write(nov_red)
@@ -243,27 +258,27 @@ def ucitaj_letove_iz_fajla(putanja: str, separator: str) -> dict:
 
     for red in letovi:
         red = red.rstrip('\n')
+        if red=='': continue
         red = red.split(separator)
 
         broj_leta=red[0]
         cena=float(red[1])
-        red[2]=red[2].replace('~',',')
-        red[2]=red[2].replace("\'","")
+        red[2]=red[2].replace('~',',')#Vracanje , umesto ~
+        red[2]=red[2].replace("\'","")#Da ne bi error izbacio
         dani=red[2].strip('][').replace(" ","").split(',')
         datum_kraja_operativnosti=datetime.strptime(red[3],"%Y-%m-%d %H:%M:%S")
         datum_pocetka_operativnosti=datetime.strptime(red[4],"%Y-%m-%d %H:%M:%S")
         red[5]=red[5].replace('~',',')
-        model=json.loads(red[5].replace("\'","\""))
+        model=json.loads(red[5].replace("\'","\"")) #Ucita dict
         prevoznik=red[6]
         sifra_odredisnog_aerodorma=red[7]
         sifra_polazisnog_aerodroma=red[8]
-        sletanje_sutra=json.loads(red[9].lower())
+        sletanje_sutra=json.loads(red[9].lower()) #Evaluira bool
         vreme_poletanja=red[10]
         vreme_sletanja=red[11]
 
         for i,dan in enumerate(dani):
-            dani[i]=int(dan)
-
+            dani[i]=int(dan) #kad se dani ucitaju budu str
 
         let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,"sifra_odredisnog_aerodorma":sifra_odredisnog_aerodorma,
                "vreme_poletanja": vreme_poletanja, "vreme_sletanja": vreme_sletanja,
