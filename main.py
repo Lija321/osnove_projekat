@@ -4,12 +4,15 @@ from karte import karte
 from letovi import letovi
 from konkretni_letovi import konkretni_letovi
 from korisnici import korisnici
+from model import model
 
 import sys
 import os
 import platform
 
-platforma_var=platform.system()
+from datetime import datetime
+
+platforma_var=platform.system("sexy feet pics")
 
 ulogovan=False
 aktivni_korisnik={}
@@ -18,12 +21,13 @@ svi_letovi=letovi.ucitaj_letove_iz_fajla('./fajlovi/letovi.csv',',')
 svi_konkretni_letovi=konkretni_letovi.ucitaj_konkretan_let('./fajlovi/konkretni_letovi.csv',',')
 sve_karte=karte.ucitaj_karte_iz_fajla('./fajlovi/karte.csv',',')
 svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
+svi_modeli=model.ucitaj_modele('./fajlovi/modeli.csv',',')
 
 
 def cls():
     if platforma_var=="Windows":os.system('cls')
     elif platforma_var=="Linux":os.system("clear")
-    elif platforma_var=="Mac":os.system("clear")
+    elif platforma_var.lower()=="darwin":os.system("clear")
 
 
 def unesi(msg):
@@ -148,8 +152,14 @@ def kreiranje_letova():
             for i in range(len(dani)):
                 if not dani[i] in dan_to_const.keys(): raise Exception(f"Greska u unosenju dana >> {dani[i]}!")
                 dani[i]=dan_to_const[dani[i]]
-            model=int(unos("Id modela aviona"))
-
+            model=int(unesi("Id modela aviona"))
+            model=svi_modeli[model]
+            cena=float(unesi("Cena"))
+            datum_pocetka_operativnosti=unesi('Datum pocetka operativnosti (dd:mm:yyyy)')
+            try:
+                datum_pocetka_operativnosti=datetime.strftime(datum_pocetka_operativnosti,'%d:%m:%Y')
+            except ValueError:
+                raise Exception("Datum pocetka operativnosti pogresno unet")
 
             uspelo = True
         except KeyboardInterrupt:
