@@ -22,7 +22,9 @@ def proveri_telefon(telefon):
     return False, ""
 
 
-def proveri_email(email):
+def proveri_email(unos):
+    email,uloga=unos
+    if not uloga==konstante.ULOGA_KORISNIK: return False,""
     if not '@' in email:
         return True, "Email fali @"
     email = email.split('@')
@@ -79,7 +81,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
     provera_funckije = [[proveri_nedostajucu_vernost, provera_nedostajanje],
                         [proveri_pasos, pasos],
                         [proveri_telefon, telefon],
-                        [proveri_email, email]]
+                        [proveri_email, (email,uloga)]]
 
     # ZOVE SVAKU OF FUNKCIJA PROVERA I VRACA ERROR
     for provera in provera_funckije:

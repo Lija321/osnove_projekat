@@ -79,7 +79,7 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
     filtrirani_letovi=[]
     for let in svi_letovi.values(): #Prvo uzmi one letovi sa datim polazistem
         if let["sifra_polazisnog_aerodroma"]==polaziste and let["sifra_odredisnog_aerodorma"]==odrediste:
-            filtrirani_letovi.append(let)
+            filtrirani_letovi.append(dict(let))
 
     #Sortiranje po ceni; iskreno ne znam kako radi
     sortirani_letovi=sorted(filtrirani_letovi, key=lambda i: i['cena'])
@@ -187,10 +187,11 @@ def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodro
     provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
                                     svi_letovi, model, vreme_sletanja, vreme_poletanja, sletanje_sutra, dani, cena,
                                     datum_pocetka_operativnosti, datum_kraja_operativnosti)
+    svi_letovi[broj_leta] = let
     import sys
     if not 'unittest' in sys.modules.keys():
         sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
-    svi_letovi[broj_leta]=let
+
     return svi_letovi
 
 """
@@ -217,8 +218,10 @@ def izmena_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma:
     provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
                                     svi_letovi, model,vreme_sletanja, vreme_poletanja,sletanje_sutra,dani,cena,
                                     datum_pocetka_operativnosti,datum_kraja_operativnosti)
-    svi_letovi[broj_leta]=let
-    sacuvaj_letove('../fajlovi/letovi.csv', ',', svi_letovi)
+    svi_letovi[broj_leta] = let
+    import sys
+    if not 'unittest' in sys.modules.keys():
+        sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
     return svi_letovi
 
 """

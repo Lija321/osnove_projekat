@@ -11,10 +11,8 @@ def sledeca_sifra_konkretnog_leta_set(svi_konkretni_letovi):
     return id
 def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
 
-    konkretan_let = {}
-    konkretan_let['broj_leta'] = let['broj_leta'] #broj leta ce biti isti za sve
 
-    sletanje_sutra=let['sletanje_sutra']# uvek isti sacuva se da se ne bi morao svaki put izvlaciti
+    sletanje_sutra=let['sletanje_sutra']
 
     datum_trenutni=let['datum_pocetka_operativnosti']
     datum_kraja=let['datum_kraja_operativnosti']
@@ -22,6 +20,9 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     while datum_trenutni<datum_kraja:
         datum_trenutni+=timedelta(days=1) #Increment
         if not datum_trenutni.weekday() in let['dani']: continue #Ako tog dana nema let idi dalje
+        konkretan_let = {}
+        konkretan_let['broj_leta'] = let['broj_leta']
+
 
         #Postavljanje sifre leta
         sledeca_sifra_konkretnog_leta=sledeca_sifra_konkretnog_leta_set(svi_konkretni_letovi)
@@ -45,6 +46,7 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
         konkretan_let['datum_i_vreme_dolaska']=datum_i_vreme_dolaska
 
         svi_konkretni_letovi[sledeca_sifra_konkretnog_leta]=konkretan_let
+
     import sys  #
     if not'unittest' in sys.modules.keys():
          sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv', ',', svi_konkretni_letovi)

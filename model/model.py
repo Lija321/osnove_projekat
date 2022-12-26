@@ -1,14 +1,14 @@
 from datetime import datetime
 from ast import literal_eval
 
-def kreiraj_model_aviona(svi_modeli, id:int ,naziv:str ,broj_redova: int,pozicija_sedista: list) -> dict:
-    model={"id":id,"naziv":naziv,"broj_redova":broj_redova,"pozicija_sedista":pozicija_sedista}
+def kreiraj_model_aviona(svi_modeli, id:int ,naziv:str ,broj_redova: int,pozicije_sedista: list) -> dict:
+    model={"id":id,"naziv":naziv,"broj_redova":broj_redova,"pozicije_sedista":pozicije_sedista}
     svi_modeli[id]=model
     sacuvaj_modele(svi_modeli,'./fajlovi/modeli.csv')
     return svi_modeli
 
 def vrati_sedista(model: dict) -> list:
-    red=['X']*len(model["pozicija_sedista"])
+    red=['X']*len(model["pozicije_sedista"])
     redovi=[red]*model['broj_redova']
     return redovi
 
