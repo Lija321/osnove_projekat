@@ -7,9 +7,13 @@ from korisnici import korisnici
 
 import sys
 import os
+import platform
+
+platforma_var=platform.system()
 
 ulogovan=False
 aktivni_korisnik={}
+
 svi_letovi=letovi.ucitaj_letove_iz_fajla('./fajlovi/letovi.csv',',')
 svi_konkretni_letovi=konkretni_letovi.ucitaj_konkretan_let('./fajlovi/konkretni_letovi.csv',',')
 sve_karte=karte.ucitaj_karte_iz_fajla('./fajlovi/karte.csv',',')
@@ -17,7 +21,10 @@ svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
 
 
 def cls():
-    os.system('cls')
+    if platforma_var=="Windows":os.system('cls')
+    elif platforma_var=="Linux":os.system("clear")
+    elif platforma_var=="Mac":os.system("clear")
+
 
 def unesi(msg):
     ret=str(input(f"{msg} >>"))
@@ -25,6 +32,8 @@ def unesi(msg):
 
 def linija():
     print('='*30)
+
+
 def prijava():
     cls()
     print("Prijava")
@@ -44,6 +53,7 @@ def prijava():
 def izlazak():
     print("Doviđenja!!!")
     sys.exit()
+
 def registracija():
     cls()
     azuriraj=False
@@ -57,10 +67,10 @@ def registracija():
             ime=unesi("Ime")
             prezime=unesi("Prezime")
             email=unesi("Email")
-            pasos=unesi("Pasos")
-            drzavljanstvo=unesi("Drzavljanstvo")
+            pasos=unesi("Pasos (opciono)")
+            drzavljanstvo=unesi("Drzavljanstvo (opciono)")
             telefon=unesi("Telefon")
-            pol=unesi("Pol")
+            pol=unesi("Pol (opciono)")
             global svi_korisnici
             svi_korisnici=korisnici.kreiraj_korisnika(svi_korisnici,azuriraj,uloga,'',
                                                       korisnicko_ime,lozinka,ime,prezime,email,
@@ -71,6 +81,14 @@ def registracija():
             aktivni_korisnik=svi_korisnici[korisnicko_ime]
             uspelo=True
         except KeyboardInterrupt:
+            print('')
+            linija()
+            print('1. Kreni ispocetka [enter]\nx. Nazad x')
+            unos=unesi('')
+            if unos=='x': return
+            continue
+        except Exception as msg:
+            print(msg)
             continue
     return
 
@@ -103,7 +121,46 @@ def registracija_novih_prodavaca_submeni():
     pass
 
 def kreiranje_letova():
-    pass
+    cls()
+    dan_to_const={
+        'pon':konstante.PONEDELJAK,
+        'uto':konstante.UTORAK,
+        'sre':konstante.SREDA,
+        'cet':konstante.CETVRTAK,
+        'čet':konstante.CETVRTAK,
+        'pet':konstante.PETAK,
+        'sub':konstante.SUBOTA,
+        'ned':konstante.NEDELJA
+    }
+    while True:
+        try:
+            print("\nCtrl-C za unosenje ispocetka")
+            broj_leta = unesi("Broj leta")
+            sifra_polazisnog_aerodroma = unesi("Polazisni aerodrom").upper()
+            sifra_odredisnog_aerodroma = unesi("Odredisni aerodrom").upper()
+            vreme_poletanja=unesi("Vreme poletanja (hh:mm)")
+            vreme_sletanja = unesi("Vreme sletanja (hh:mm)")
+            sletanje_sutra=bool(unesi("Sletanje sutra"))
+            prevoznik=unesi("Prevoznik")
+            dani=unesi('Dani npr(pon,uto,sre,ned)').lower()
+            dani=dani.split(',')
+            if len(dani)!=len(list(set(dani))): raise Exception("Dani se ponavljaju")
+            for i in range(len(dani)):
+                if not dani[i] in dan_to_const.keys(): raise Exception(f"Greska u unosenju dana >> {dani[i]}!")
+                dani[i]=dan_to_const[dani[i]]
+            model=int(unos("Id modela aviona"))
+
+
+            uspelo = True
+        except KeyboardInterrupt:
+            print('')
+            linija()
+            print('1. Kreni ispocetka [enter]\nx. Nazad x')
+            unos = unesi('')
+            if unos == 'x': return
+            continue
+    return
+
 
 def izmena_letova():
     pass
@@ -227,7 +284,8 @@ def main():
                 else: raise Exception('Uloga aktivnog korisnika neispravna')
             else: neulogovan_meni()
         except KeyboardInterrupt:
-            sys.exit()
+            print("")
+            izlazak()
         except Exception as msg:
             print(f"Greska kasno uhvacena >> {msg}")
             sys.exit()

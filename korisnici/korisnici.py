@@ -4,6 +4,7 @@ from ast import literal_eval
 
 def proveri_pasos(pasos):
     pasos = str(pasos)
+    if pasos=="": return False, ""
     if not all(x.isdigit() for x in pasos):#Ako se desi da jedan znak nije cifra
         return True, "Pasoš nebrojevni string"
     if len(pasos) > 9:
