@@ -5,6 +5,7 @@ from letovi import letovi
 from konkretni_letovi import konkretni_letovi
 from korisnici import korisnici
 from model import model
+from meni.meni import *
 
 import sys
 import os
@@ -12,7 +13,7 @@ import platform
 
 from datetime import datetime
 
-platforma_var=platform.system()
+
 
 ulogovan=False
 aktivni_korisnik={}
@@ -24,64 +25,6 @@ svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
 svi_modeli=model.ucitaj_modele('./fajlovi/modeli.csv',',')
 
 
-
-def cls():
-    if platforma_var=="Windows":os.system('cls')
-    elif platforma_var=="Linux":os.system("clear")
-    elif platforma_var.lower()=="darwin":os.system("clear")
-
-def unesi(msg):
-    ret=str(input(f"{msg} >>"))
-    return ret
-
-def linija(duzina=30):
-    print('='*30)
-
-def dict_to_list(dict,keys):
-    lista_ret=[]
-    for key in keys:
-        lista_ret.append(dict[key])
-    return lista_ret
-
-def tabelarni_prikaz(podaci, formatiranje, centriranje=15):
-    red = '||'
-    for parametar in formatiranje:
-        red += f'{parametar:^{centriranje}} || '
-    print(red)
-    print('=' * (len(red) - 1))
-
-    for row in podaci:
-        red = '||'
-        for item in row:
-            item=str(item)
-            red += f'{item:^{centriranje}} || '
-        print(red)
-
-def dani_to_string(dani):
-    dani_dict={
-        konstante.PONEDELJAK: 'Pon',
-        konstante.UTORAK: 'Uto',
-        konstante.SREDA: 'Sre',
-        konstante.CETVRTAK: 'Cet',
-        konstante.PETAK: 'Pet',
-        konstante.SUBOTA: 'Sub',
-        konstante.NEDELJA: 'Ned'
-    }
-    ret=''
-    for dan in dani:
-        ret+=dani_dict[dan]+','
-    ret=ret[:-1]
-    return ret
-
-def let_format_za_prikaz(let,keys):
-    bool_to_da_ne_dict={True:"Da",False:'Ne'}
-    let['model'] = let['model']['naziv']
-    let['datum_pocetka_operativnosti'] = let['datum_pocetka_operativnosti'].date()
-    let['datum_kraja_operativnosti'] = let['datum_kraja_operativnosti'].date()
-    let['dani'] = dani_to_string(let['dani'])
-    let['sletanje_sutra']=bool_to_da_ne_dict[let['sletanje_sutra']]
-    lista_leta = dict_to_list(let, keys)
-    return lista_leta
 def prijava():
     cls()
     print("Prijava")
@@ -141,9 +84,51 @@ def registracija():
     return
 
 def pregled_nerez_letova():
-    pass
+    global svi_letovi
+    letovi.pregled_nerealizovanih_letova(svi_letovi)
 def pretraga_letova_submeni():
-    pass
+    '''
+    polaziste: str = "", odrediste: str = "", datum_polaska: str = "",datum_dolaska: str = "",
+                    vreme_poletanja: str = "", vreme_sletanja: str = "", prevoznik: str = ""
+    '''
+    cls()
+    filteri_unos={
+        '1': "",
+        '2': "",
+        '3': "",
+        '3': "",
+        '4': "",
+        '5': "",
+        '6': ""
+    }
+    filteri_poruka=[
+        'Odrediste',
+        'Polaziste',
+        'Datum polaska',
+        'Datum dolaska',
+        'Vreme poletanja (hh:mm)',
+        'Vreme sletanja (hh:mm)',
+        'Prevoznik'
+    ]
+    while True:
+        try:
+            print("Ctrl-C za nov pokusaj")
+            print('Odaberite filtere:')
+            print('1. Polaziste 1\n2. Odrediste 2\n3. Datum polaska 3\n4. Datum dolaska 4')
+            print('5. Vreme poletanja 5\n6. Vreme sletanja 6\n7. Prevoznik 7\nx. Nazad x')
+            odabrani_filteri=unesi("Odaberite filtere npr[157]")
+            if 'x' in odabrani_filteri: return
+            odabrani_filteri=remove_duplicate(odabrani_filteri)
+
+            for x in odabrani_filteri:
+                if not x in filteri_unos.keys(): raise Exception(f'Odabran nevalidan filter {x}')
+                filteri_unos[x]=unesi(filteri_poruka[int(x)-1])
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as msg:
+            print(msg)
+
 def trazenje_10_najjeftinijih_letova_submeni():
     cls()
     try:
@@ -186,6 +171,7 @@ def odjava():
     global ulogovan
     ulogovan=False
     aktivni_korisnik={}
+    cls()
     return
 
 def pretraga_prodatih_karata_submeni():
@@ -207,6 +193,7 @@ def registracija_novih_prodavaca_submeni():
             svi_korisnici = korisnici.kreiraj_korisnika(svi_korisnici, azuriraj, uloga, '',
                                                         korisnicko_ime, lozinka, ime, prezime)
 
+            cls()
             return
 
         except KeyboardInterrupt:
@@ -293,6 +280,7 @@ def kreiranje_letova():
                                                datum_pocetka_operativnosti,datum_kraja_operativnosti)
             svi_konkretni_letovi=konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi,svi_letovi[broj_leta])
             konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
+            cls()
             return
 
         except KeyboardInterrupt:
@@ -309,6 +297,7 @@ def kreiranje_letova():
 def izmena_letova():
     cls()
     global svi_letovi
+    global svi_konkretni_letovi
     dan_to_const = {
         'pon': konstante.PONEDELJAK,
         'uto': konstante.UTORAK,
@@ -319,16 +308,36 @@ def izmena_letova():
         'sub': konstante.SUBOTA,
         'ned': konstante.NEDELJA
     }
+    sletanje_sutra_dict = {
+        "da": True,
+        'ne': False,
+        "y": True,
+        'n': False,
+        'yes': True,
+        'no': False,
+        'd': True,
+        'n': False,
+        'true': True,
+        'false': False
+    }
     while True:
         try:
             print("\nCtrl-C za unosenje ispocetka")
             broj_leta = unesi("Broj leta za izmenu").upper()
             if  not broj_leta in svi_letovi.keys(): raise Exception("Let ne postoji")
+
             sifra_polazisnog_aerodroma = unesi("Polazisni aerodrom").upper()
             sifra_odredisnog_aerodroma = unesi("Odredisni aerodrom").upper()
+
             vreme_poletanja = unesi("Vreme poletanja (hh:mm)(00-24)")
             vreme_sletanja = unesi("Vreme sletanja (hh:mm)(00-24)")
-            sletanje_sutra = bool(unesi("Sletanje sutra (true/false)"))
+
+            sletanje_sutra = unesi("Sletanje sutra (da/ne)").lower()
+            if sletanje_sutra in sletanje_sutra_dict:
+                sletanje_sutra = sletanje_sutra_dict[sletanje_sutra]
+            else:
+                raise Exception('Sletanje sutra pogresno uneto')
+
             prevoznik = unesi("Prevoznik")
             dani = unesi('Dani [pon,uto,sre,cet,pet,sub,ned]').lower()
             dani = dani.split(',')
@@ -336,9 +345,12 @@ def izmena_letova():
             for i in range(len(dani)):
                 if not dani[i] in dan_to_const.keys(): raise Exception(f"Greska u unosenju dana >> {dani[i]}!")
                 dani[i] = dan_to_const[dani[i]]
+
             model = int(unesi("Id modela aviona"))
             model = svi_modeli[model]
+
             cena = float(unesi("Cena"))
+
             datum_pocetka_operativnosti = unesi('Datum pocetka operativnosti (dd.mm.yyyy)')
             try:
                 datum_pocetka_operativnosti = datetime.strptime(datum_pocetka_operativnosti, '%d.%m.%Y')
@@ -357,12 +369,15 @@ def izmena_letova():
                                                  model, cena,
                                                  datum_pocetka_operativnosti, datum_kraja_operativnosti)
 
+            novi_svi_konkretni_letovi={}
             for sifra,let in svi_konkretni_letovi.items():#Brise stare
-                if let['broj_leta']==broj_leta: del svi_konkretni_letovi[sifra]
+                if not let['broj_leta']==broj_leta: novi_svi_konkretni_letovi[sifra]=let
 
+            svi_konkretni_letovi=novi_svi_konkretni_letovi.copy()
             svi_konkretni_letovi = konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, #Pravi nove
                                                                               svi_letovi[broj_leta])
             konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv', ',', svi_konkretni_letovi)
+            cls()
             return
 
 
@@ -385,7 +400,6 @@ def izvestavanje_submeni():
     pass
 
 def neulogovan_meni():
-    cls()
     neulogovan_meni_dict={
         '1':prijava,
         '2':registracija,
@@ -416,7 +430,6 @@ def neulogovan_meni():
             print("Odabrali ste nepostojeću opciju")
 
 def ulogovan_meni_korisnik():
-    cls()
     ulogovan_meni_korisnik_dict = {
         '1': kupovina_karata_submeni,
         '2': check_in,
@@ -448,7 +461,6 @@ def ulogovan_meni_korisnik():
             print("Odabrali ste nepostojeću opciju")
 
 def ulogovan_meni_admin():
-    cls()
     ulogovan_meni_korisnik_dict = {
         '1': pretraga_prodatih_karata_submeni,
         '2': registracija_novih_prodavaca_submeni,

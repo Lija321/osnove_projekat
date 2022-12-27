@@ -1,1 +1,2 @@
 AA22,123.0,[0],2022-02-01 00:00:00,2022-01-01 00:00:00,{'id': 123~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},AirSerbia,DSA,ASD,False,12:00,13:00
+JU50,1500.0,[0~ 1~ 2~ 3~ 4~ 5~ 6],2023-03-01 00:00:00,2022-11-01 00:00:00,{'id': 123~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},AirSerbia,NYC,BEG,False,12:00,23:00

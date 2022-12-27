@@ -2,14 +2,23 @@ from common.konstante import PONEDELJAK,UTORAK,SREDA,CETVRTAK,PETAK,SUBOTA,NEDEL
 import json
 from datetime import datetime, timedelta
 import time
-
+from meni.meni import *
 
 """
 Funkcija koja omogucuje korisniku da pregleda informacije o letovima
 Ova funkcija sluzi samo za prikaz
 """
 def pregled_nerealizovanih_letova(svi_letovi: dict):
-    pass
+    formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja', 'Sletanje sutra',
+                    'Prevoznik', 'Dani leta', 'Cena']
+    keys = ['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
+            'vreme_sletanja','vreme_poletanja', 'sletanje_sutra', 'prevoznik',
+            'dani', 'cena']
+    podaci = []
+    for let in svi_letovi.values():
+        lista_leta = let_format_za_prikaz(let, keys)
+        podaci.append(lista_leta)
+    tabelarni_prikaz(podaci, formatiranje, 27)
 
 """
 Pomoćna funkcija koja podešava matricu zauzetosti leta tako da sva mesta budu slobodna.
@@ -55,26 +64,25 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
         if str(provera[0])!="" and not provera[0] is None:
             lista_kriterijuma.append(provera)
 
-
-
-
     for let in konkretni_letovi.values():
         ispunjava_filtere=True
         for item in lista_kriterijuma:
             val,key,id=item
-            if id==0 and let[key] != val: #Ako id !=0 let[key] se nece ni proveravati pa ni ne izbacuje key error
-                ispunjava_filtere=False
+            if id==0:
+                if isinstance(val,str) and let[key]!=val:
+                    ispunjava_filtere=False
+                elif isinstance(val,datetime) and let[key].date()!=val.date():
+                    ispunjava_filtere = False
             elif id==1: #isto kao else al da bude jasnije
                 if not svi_letovi[let['broj_leta']][key]==val:
                     ispunjava_filtere==False
         if ispunjava_filtere:  #Ako nijedan filter nije pao -> stavi
-            letovi_ret.append(let)
+            letovi_ret.append(dict(let))
     return letovi_ret
 
 
 
 
-#IZBIRSANO SA GITLABA
 def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odrediste: str =""):
     filtrirani_letovi=[]
     for let in svi_letovi.values(): #Prvo uzmi one letovi sa datim polazistem
