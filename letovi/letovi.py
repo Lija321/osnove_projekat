@@ -61,22 +61,34 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
     test_list=lista_kriterijuma[:] #Izbacivanje "" i None
     lista_kriterijuma=[]
     for provera in test_list:
-        if str(provera[0])!="" and not provera[0] is None:
+        if not str(provera[0])=="" and not provera[0] is None:
             lista_kriterijuma.append(provera)
 
     for let in konkretni_letovi.values():
         ispunjava_filtere=True
         for item in lista_kriterijuma:
             val,key,id=item
-            if id==0:
-                if isinstance(val,str) and let[key]!=val:
-                    ispunjava_filtere=False
-                elif isinstance(val,datetime) and let[key].date()!=val.date():
+
+            if id==0: #Nesto sto se nalazi u konkretnim letovima (datumi)
+                if isinstance(val,str): #tipe je string
+                    if isinstance(let[key],str) and val!=let[key]: #Ako je u recniku string -> poredi sa prosledjenim stringom
+                        ispunjava_filtere=False
+
+                    elif isinstance(let[key],str):
+                        try:
+                            datum = datetime.strptime(val, '%d.%m.%Y')
+                        except ValueError:
+                            raise Exception("Datumi pogresno unet")
+                        ispunjava_filtere= datum.date()==let[key].date()
+
+                elif isinstance(val,datetime) and let[key].date()!=val.date(): #ako je tipa datetime i nisu isti datumi
                     ispunjava_filtere = False
-            elif id==1: #isto kao else al da bude jasnije
-                if not svi_letovi[let['broj_leta']][key]==val:
-                    ispunjava_filtere==False
-        if ispunjava_filtere:  #Ako nijedan filter nije pao -> stavi
+
+            elif id==1: #ako je iz letova / lower da bi bilo case insensitvie
+                if not svi_letovi[let['broj_leta']][key].lower()==val.lower():
+                    ispunjava_filtere=False
+
+        if ispunjava_filtere:  #Ako nijedan filter nije pao -> dodaj
             letovi_ret.append(dict(let))
     return letovi_ret
 

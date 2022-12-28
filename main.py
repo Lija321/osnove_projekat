@@ -99,13 +99,14 @@ def pretraga_letova_submeni():
         '3': "",
         '4': "",
         '5': "",
-        '6': ""
+        '6': "",
+        '7': ""
     }
     filteri_poruka=[
         'Odrediste',
         'Polaziste',
-        'Datum polaska',
-        'Datum dolaska',
+        'Datum polaska (dd.mm.yyyy)',
+        'Datum dolaska (dd.mm.yyyy)',
         'Vreme poletanja (hh:mm)',
         'Vreme sletanja (hh:mm)',
         'Prevoznik'
@@ -124,6 +125,37 @@ def pretraga_letova_submeni():
                 if not x in filteri_unos.keys(): raise Exception(f'Odabran nevalidan filter {x}')
                 filteri_unos[x]=unesi(filteri_poruka[int(x)-1])
 
+            if not filteri_unos['3']=='':
+                try:
+                    filteri_unos['3'] = datetime.strptime(filteri_unos['3'], '%d.%m.%Y')
+                except ValueError:
+                    raise Exception("Datum pocetka operativnosti pogresno unet")
+
+            if not filteri_unos['4']=='':
+                try:
+                    filteri_unos['4'] = datetime.strptime(filteri_unos['4'], '%d.%m.%Y')
+                except ValueError:
+                    raise Exception("Datum pocetka operativnosti pogresno unet")
+
+            pretrazeni_letovi=letovi.pretraga_letova(svi_letovi,svi_konkretni_letovi,
+                                             filteri_unos['1'].upper(),
+                                             filteri_unos['2'].upper(),
+                                             filteri_unos['3'],
+                                             filteri_unos['4'],
+                                             filteri_unos['5'],
+                                             filteri_unos['6'],
+                                             filteri_unos['7'])
+            formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
+                            'Sletanje sutra',
+                            'Prevoznik','Cena','Datum polaska','Datum dolaska']
+            keys = ['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
+                    'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
+                    'cena','datum_i_vreme_polaska','datum_i_vreme_dolaska']
+            podaci = []
+            for let in pretrazeni_letovi:
+                lista_leta = konkretan_let_format_za_prikaz(let, keys,svi_letovi)
+                podaci.append(lista_leta)
+            tabelarni_prikaz(podaci, formatiranje, 15)
         except KeyboardInterrupt:
             pass
         except Exception as msg:
@@ -144,10 +176,9 @@ def trazenje_10_najjeftinijih_letova_submeni():
                 continue
             najjeftinij_letovi=letovi.trazenje_10_najjeftinijih_letova(svi_letovi,sifra_polazisnog_aerodroma,sifra_odredisnog_aerodroma)
             formatiranje=['Broj leta','Polaziste','Odrediste','Vreme sletanja','Vreme poletanja','Sletanje sutra',
-                          'Prevoznik','Dani leta','Cena']
+                          'Prevoznik','Cena']
             keys=['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
-                  'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
-                  'dani','cena']
+                  'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik','cena']
             podaci=[]
             for let in najjeftinij_letovi:
                 lista_leta=let_format_za_prikaz(let,keys)

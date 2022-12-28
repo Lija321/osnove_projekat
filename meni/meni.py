@@ -65,6 +65,22 @@ def let_format_za_prikaz(let,keys):
     lista_leta = dict_to_list(let_copy, keys)
     return lista_leta
 
+def konkretan_let_format_za_prikaz(konkreatan_let,keys,svi_letovi):
+    konkreatan_let_copy=dict(konkreatan_let)
+    let_copy=dict(svi_letovi[konkreatan_let_copy['broj_leta']])
+    let_formatiran=konkreatan_let_copy | let_copy
+    let_formatiran['model'] = let_copy['model']['naziv']
+    bool_to_da_ne_dict={True:"Da",False:'Ne'}
+    let_formatiran['model'] = let_copy['model']['naziv']
+    let_formatiran['datum_pocetka_operativnosti'] = let_copy['datum_pocetka_operativnosti'].date()
+    let_formatiran['datum_kraja_operativnosti'] = let_copy['datum_kraja_operativnosti'].date()
+    let_formatiran['dani'] = dani_to_string(let_copy['dani'])
+    let_formatiran['sletanje_sutra']=bool_to_da_ne_dict[let_copy['sletanje_sutra']]
+    let_formatiran["datum_i_vreme_polaska"]=konkreatan_let_copy["datum_i_vreme_polaska"].date()
+    let_formatiran['datum_i_vreme_dolaska']=konkreatan_let_copy['datum_i_vreme_dolaska'].date()
+    lista_leta = dict_to_list(let_formatiran, keys)
+    return lista_leta
+
 def hasRepeatedChars(s):
     for i in xrange(len(s)):
         if i != s.rfind(s[i]):
