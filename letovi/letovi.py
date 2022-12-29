@@ -1,5 +1,6 @@
 from common.konstante import PONEDELJAK,UTORAK,SREDA,CETVRTAK,PETAK,SUBOTA,NEDELJA
 import json
+from ast import literal_eval
 from datetime import datetime, timedelta
 import time
 from meni.meni import *
@@ -81,12 +82,14 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
                             raise Exception("Datumi pogresno unet")
                         ispunjava_filtere= datum.date()==let[key].date()
 
-                elif isinstance(val,datetime) and let[key].date()!=val.date(): #ako je tipa datetime i nisu isti datumi
+                elif let[key].date()!=val.date(): #ako je tipa datetime i nisu isti datumi
                     ispunjava_filtere = False
 
             elif id==1: #ako je iz letova / lower da bi bilo case insensitvie
                 if not svi_letovi[let['broj_leta']][key].lower()==val.lower():
                     ispunjava_filtere=False
+                else:
+                    pass
 
         if ispunjava_filtere:  #Ako nijedan filter nije pao -> dodaj
             letovi_ret.append(dict(let))
@@ -292,7 +295,7 @@ def ucitaj_letove_iz_fajla(putanja: str, separator: str) -> dict:
         datum_kraja_operativnosti=datetime.strptime(red[3],"%Y-%m-%d %H:%M:%S")
         datum_pocetka_operativnosti=datetime.strptime(red[4],"%Y-%m-%d %H:%M:%S")
         red[5]=red[5].replace('~',',')
-        model=json.loads(red[5].replace("\'","\"")) #Ucita dict
+        model=literal_eval(red[5].replace("\'","\"")) #Ucita dict
         prevoznik=red[6]
         sifra_odredisnog_aerodorma=red[7]
         sifra_polazisnog_aerodroma=red[8]

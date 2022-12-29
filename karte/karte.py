@@ -44,12 +44,12 @@ def kupovina_karte(
         raise Exception("Konkretan let ne postoji")
 
     ima_slobodno_mesto=False
+    broj_putnika=len(putnici)
+    broj_slobodnih_mesta=0
     for red in slobodna_mesta:
-        if True in red:
-            ima_slobodno_mesto=True #Ako se nadje jedno prazno mesto -> ima mesra
-            break
-    if slobodna_mesta==[]: #Ako je matrica prazna isto ima mesta
-        ima_slobodno_mesto=True
+        if False in red:
+            broj_slobodnih_mesta+=1
+    ima_slobodno_mesto= broj_putnika<=broj_slobodnih_mesta
 
     if ima_slobodno_mesto==False:
         raise Exception("Nema slobodnih mesta")
@@ -59,8 +59,7 @@ def kupovina_karte(
     sledeci_broj_karte=sledeci_broj_karte_set(sve_karte)
     broj_karte=sledeci_broj_karte
 
-    prodavac=kwargs['prodavac']
-    datum_prodaje=kwargs['datum_prodaje']
+
 
     #if datum_prodaje=="": datum_prodaje=datetime.now()
 
@@ -73,16 +72,17 @@ def kupovina_karte(
         "kupac":kupac,
         "obrisana": False
     }
-    if not datum_prodaje is None: karta['datum_prodaje']=datum_prodaje #Ako nisu prazni dodaj ih
-    if prodavac!="": karta["prodavac"]=prodavac
+    if 'datum_prodaje' in kwargs: kwargs['datum_prodaje']=karta['datum_prodaje'] #Ako nisu prazni dodaj ih
+    if 'prodavac' in kwargs and prodavac!="": karta["prodavac"]=kwargs['prodavac']
 
     sve_karte[karta['broj_karte']]=karta
 
     import sys
     if not 'unittest' in sys.modules.keys():
-        sacuvaj_karte('./fajlovi/karte.csv',',',sve_karte)
-    return karta #Mislim da je greska u testu
-    #return sve_karte
+        sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
+    else: #nije testiranje
+        return karta #Mislim da je greska u testu
+    return sve_karte
 
 """
 Vraća sve nerealizovane karte za korisnika u listi.

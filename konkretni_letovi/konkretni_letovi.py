@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+import letovi.letovi
+
 sledeca_sifra_konkretnog_leta =1
 def sledeca_sifra_konkretnog_leta_set(svi_konkretni_letovi):
     ids=svi_konkretni_letovi.keys()

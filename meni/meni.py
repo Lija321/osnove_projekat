@@ -9,7 +9,7 @@ def cls():
     elif platforma_var=="Linux":os.system("clear")
     elif platforma_var.lower()=="darwin":os.system("clear")
 
-def unesi(msg):
+def unesi(msg=''):
     ret=str(input(f"{msg} >>"))
     return ret
 
