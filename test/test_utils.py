@@ -77,6 +77,7 @@ def rand_seat(max_row: int, max_col: int):
 def rand_seat_coords(max_row, max_col):
     return random.randint(ord('A'), ord('A')+max_col), random.randint(1, max_row)
 
+
 def rand_valid_aerodrom():
     return {
         "skracenica": rand_str(3),
