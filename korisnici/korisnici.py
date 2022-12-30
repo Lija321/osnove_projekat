@@ -110,9 +110,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
             raise Exception("Korisnik vec postoji")
         svi_korisnici[identifiktor] = korisnik_podaci
 
-    import sys
-    if not 'unittest' in sys.modules.keys():
-        sacuvaj_korisnike('./fajlovi/korisnici.csv',',',svi_korisnici)
+
     return svi_korisnici
 
 

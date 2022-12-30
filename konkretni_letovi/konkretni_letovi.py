@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime,timedelta
+
 
 import letovi.letovi
 
@@ -11,6 +12,11 @@ def sledeca_sifra_konkretnog_leta_set(svi_konkretni_letovi):
     else: id=1 #ako nema uopste postavi se na jedan
 
     return id
+
+"""
+Funkcija koja za zadati konkretni let kreira sve konkretne letove u opsegu operativnosti.
+Kao rezultat vraća rečnik svih konkretnih letova koji sadrži nove konkretne letove.
+"""
 def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
 
 
@@ -49,12 +55,14 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
 
         svi_konkretni_letovi[sledeca_sifra_konkretnog_leta]=konkretan_let
 
-    import sys  #
-    if not'unittest' in sys.modules.keys():
-         sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv', ',', svi_konkretni_letovi)
     return svi_konkretni_letovi
 
 
+
+
+"""
+Funkcija čuva konkretne letove u fajl na zadatoj putanji sa zadatim separatorom. 
+"""
 def sacuvaj_kokretan_let(putanja: str, separator: str, svi_konkretni_letovi: dict):
     red_cuvanja = ['sifra', 'broj_leta', 'datum_i_vreme_polaska', 'datum_i_vreme_dolaska']
     with open(putanja, 'w') as f:
@@ -66,6 +74,10 @@ def sacuvaj_kokretan_let(putanja: str, separator: str, svi_konkretni_letovi: dic
             nov_red+='\n'
             f.write(nov_red)
 
+
+"""
+Funkcija učitava konkretne letove iz fajla na zadatoj putanji sa zadatim separatorom.
+"""
 def ucitaj_konkretan_let(putanja: str, separator: str) -> dict:
     svi_konk_let = {}
     with open(putanja, 'r') as f:

@@ -1,0 +1,2 @@
+cuvaj iz main sve da ne bi cuvao vise puta iste karte
+karte izmeni cuvanje

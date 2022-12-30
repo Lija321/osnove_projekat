@@ -1,5 +1,4 @@
 from datetime import datetime, date, timedelta
-from functools import reduce
 
 def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: datetime)->list:
     izvestaj_ret=[]

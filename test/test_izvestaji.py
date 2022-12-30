@@ -32,19 +32,19 @@ class IzvestajiTest(unittest.TestCase):
 
         self.konkretan_let = {
             "sifra_konkretnog_leta": 1234,
-            "broj_leta": "aa33",
-            "datum_i_vreme_polaska": rand_datetime(),
+            "broj_leta":"aa33",
+            "datum_i_vreme_polaska" : rand_datetime(),
             "datum_dolaska": rand_datetime()
         }
 
         self.puna_karta = {
             "broj_karte": 1,
-            "sifra_leta": "aa33",  # sifra konkretnog leta
-            "sifra_konkretnog_leta": 1234,
+            "sifra_leta": "aa33", #sifra konkretnog leta
+            "sifra_konkretnog_leta":1234,
             "kupac": ''.join(random.sample(string.ascii_lowercase, 6)),
             "prodavac": ''.join(random.sample(string.ascii_lowercase, 7)),
             "sifra_sedista": "b3",
-            "datum_prodaje": rand_datetime(),
+            "datum_prodaje" : rand_datetime(),
             "obrisana": False
         }
 
@@ -62,7 +62,7 @@ class IzvestajiTest(unittest.TestCase):
         karte_prodate_na_dan = [
             {
                 "broj_karte": random.randint(1, 10000),
-                "datum_prodaje": dan_prodaje
+                "datum_prodaje":dan_prodaje
             },
             {
                 "broj_karte": random.randint(1, 10000),
@@ -144,12 +144,13 @@ class IzvestajiTest(unittest.TestCase):
         self.assertIsNotNone(nadjene_karte, msg="Nije vraćena kolekcija karata")
         self.assertEqual(karte_na_dan_polaska, nadjene_karte, msg="Sve karte su tu")
 
+
     def test_izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(self):
         datum_prodaje = rand_datetime().date()
         karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = random.randint(100, 1000)
         karta1["datum_prodaje"] = datum_prodaje
-        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7)),
+        karta1["prodavac"] =''.join(random.sample(string.ascii_lowercase, 7)),
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_prodaje"] = datum_prodaje
         karta2["broj_karte"] = random.randint(100, 1000)
@@ -158,7 +159,7 @@ class IzvestajiTest(unittest.TestCase):
             {self.puna_karta["broj_karte"]: self.puna_karta,
              karta1["broj_karte"]: karta1,
              karta2["broj_karte"]: karta2},
-            self.puna_karta["datum_prodaje"],
+             self.puna_karta["datum_prodaje"],
             self.puna_karta["prodavac"]
         )
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
@@ -177,11 +178,12 @@ class IzvestajiTest(unittest.TestCase):
             {self.puna_karta["broj_karte"]: self.puna_karta,
              karta1["broj_karte"]: karta1,
              karta2["broj_karte"]: karta2},
-            karta1["datum_prodaje"] + timedelta(milliseconds=3),
+             karta1["datum_prodaje"] + timedelta(milliseconds=3),
             ''.join(random.sample(string.ascii_lowercase, 8)),
         )
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
         self.assertEqual(0, len(sve_karte), msg="Nema karata")
+
 
     def test_izvestaj_ubc_prodatih_karata_za_dan_prodaje(self):
         dan_prodaje = rand_datetime().date()
@@ -284,9 +286,9 @@ class IzvestajiTest(unittest.TestCase):
             konkretni_let_drugi_dan["sifra_konkretnog_leta"]: konkretni_let_drugi_dan
         }
 
-        karta1 = copy.deepcopy(self.puna_karta)
+        karta1 = copy.deepcopy(self.puna_karta) 
         karta1["broj_karte"] = 2
-        karta1["datum_i_vreme_polaska"] = dan_prodaje
+        karta1["datum_i_vreme_polaska"] =  dan_prodaje
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_i_vreme_polaska"] = karta1["datum_i_vreme_polaska"]
         karta2["broj_karte"] = 3
@@ -373,7 +375,7 @@ class IzvestajiTest(unittest.TestCase):
         self.assertNotEqual(0, rezultat[0], msg="")
         self.assertNotEqual(0, rezultat[0], msg="")
 
-    def test_izvestaj_ubc_prodatih_karata_za_dan_polaska_neuspesan(self):
+    def test_izvestaj_ubc_prodatih_karata_za_dan_polaska_neuspesan(self): #TODO
         datum = rand_datetime()
         datum2 = datum + timedelta(days=3)
         konkretan_let1 = copy.deepcopy(self.konkretan_let)
@@ -418,6 +420,7 @@ class IzvestajiTest(unittest.TestCase):
         self.assertEqual(0, rezultat[0], msg="")
         self.assertEqual(0, rezultat[0], msg="")
 
+
     def test_izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(self):
         karta1 = copy.deepcopy(self.puna_karta)
         datum = rand_datetime()
@@ -430,12 +433,12 @@ class IzvestajiTest(unittest.TestCase):
         karta2["broj_karte"] = 3
 
         sve_karte = {self.puna_karta["broj_karte"]: self.puna_karta,
-                     karta1["broj_karte"]: karta1,
-                     karta2["broj_karte"]: karta2}
+             karta1["broj_karte"]: karta1,
+             karta2["broj_karte"]: karta2}
 
         rezultat = izvestaji.izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(
             sve_karte,
-            {self.konkretan_let["sifra_konkretnog_leta"]: self.konkretan_let},
+            {self.konkretan_let["sifra_konkretnog_leta"]:self.konkretan_let},
             {self.pun_let["broj_leta"]: self.pun_let},
             datum,
             karta1["prodavac"]
@@ -444,6 +447,7 @@ class IzvestajiTest(unittest.TestCase):
         self.assertEqual(2, len(rezultat), msg="")
         self.assertNotEqual(0, rezultat[0], msg="")
         self.assertNotEqual(0, rezultat[1], msg="")
+
 
     def test_izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(self):
         today = date.today()

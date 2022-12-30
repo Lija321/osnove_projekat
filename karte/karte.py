@@ -6,6 +6,7 @@ from functools import reduce
 from datetime import datetime
 import csv
 from ast import literal_eval
+import copy
 
 
 def sledeci_broj_karte_set(sve_karte:dict):
@@ -39,9 +40,12 @@ def kupovina_karte(
     slobodna_mesta: list,
     kupac: dict,
     **kwargs #prodavac i datum prodaje
-) -> dict:
+) ->  (dict, dict):
     if not sifra_konkretnog_leta in svi_konkretni_letovi:
         raise Exception("Konkretan let ne postoji")
+
+    if not kupac['uloga']==konstante.ULOGA_KORISNIK:
+        raise Exception("Neispravna uloga kupca")
 
     ima_slobodno_mesto=False
     broj_putnika=len(putnici)
@@ -50,7 +54,6 @@ def kupovina_karte(
         if False in red:
             broj_slobodnih_mesta+=1
     ima_slobodno_mesto= broj_putnika<=broj_slobodnih_mesta
-
     if ima_slobodno_mesto==False:
         raise Exception("Nema slobodnih mesta")
 
@@ -72,17 +75,19 @@ def kupovina_karte(
         "kupac":kupac,
         "obrisana": False
     }
-    if 'datum_prodaje' in kwargs: kwargs['datum_prodaje']=karta['datum_prodaje'] #Ako nisu prazni dodaj ih
-    if 'prodavac' in kwargs and prodavac!="": karta["prodavac"]=kwargs['prodavac']
+
+    if 'datum_prodaje' in kwargs.keys():
+        karta['datum_prodaje']=kwargs['datum_prodaje'] #Ako nisu prazni dodaj ih
+    if 'prodavac' in kwargs.keys():
+        prodavac=kwargs['prodavac']
+        if not prodavac['uloga']==konstante.ULOGA_PRODAVAC:
+            raise Exception("Samo prodavac moze da proda kartu")
+        karta["prodavac"]=kwargs['prodavac']
 
     sve_karte[karta['broj_karte']]=karta
 
-    import sys
-    if not 'unittest' in sys.modules.keys():
-        sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
-    else: #nije testiranje
-        return karta #Mislim da je greska u testu
-    return sve_karte
+
+    return karta,sve_karte
 
 """
 Vraća sve nerealizovane karte za korisnika u listi.
@@ -142,6 +147,67 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
     return karte_ret
 
 
+"""
+Funkcija menja sve vrednosti karte novim vrednostima. Kao rezultat vraća rečnik sa svim kartama, 
+koji sada sadrži izmenu.
+"""
+def izmena_karte(
+    sve_karte: iter,
+    svi_konkretni_letovi: iter,
+    broj_karte: int,
+    nova_sifra_konkretnog_leta: int=None,
+    nov_datum_polaska: datetime=None,
+    sediste=None
+) -> dict:
+    if not broj_karte in sve_karte.keys(): raise Exception("Nepostojeci broj karte")
+    karta_za_menjanje=copy.copy(sve_karte[broj_karte])
+
+    if not nova_sifra_konkretnog_leta is None:
+        if not nova_sifra_konkretnog_leta in svi_konkretni_letovi.keys(): raise Exception("Nov izabran let ne postoji")
+        karta_za_menjanje['sifra_konkretnog_leta']=nova_sifra_konkretnog_leta
+
+    if not nov_datum_polaska is None: #Pitaj ovo
+        pass
+    if not sediste is None:
+        pass
+
+    sve_karte[broj_karte]=karta_za_menjanje
+    return sve_karte
+
+
+"""
+Funkcija vraća sve karte koje se poklapaju sa svim zadatim kriterijumima. 
+Kriterijum se ne primenjuje ako nije prosleđen.
+"""
+def pretraga_prodatih_karata(sve_karte: dict, svi_letovi:dict, svi_konkretni_letovi:dict, polaziste: str="",
+                             odrediste: str="", datum_polaska: datetime="", datum_dolaska: datetime="",
+                             korisnicko_ime_putnika: str="")->list:
+    polaziste_prazno= polaziste==''
+    odrediste_prazno= odrediste==''
+    datum_polaska_prazan= datum_polaska==''
+    datum_dolaska_prazan= datum_dolaska==''
+    korisnicko_ime_putnika_prazno= korisnicko_ime_putnika==''
+
+    karte_ret=[]
+    for karta in sve_karte:
+        sifra_konkretnog_leta=karta['sifra_konkretnog_leta']
+        broj_leta=svi_konkretni_letovi[sifra_konkretnog_leta]
+        polaziste_karte=svi_letovi[broj_leta]['sifra_polazisnog_aerodroma']
+        odrediste_karte=svi_letovi[broj_leta]['sifra_odredisnog_aerodroma']
+        datum_polaska_karte=svi_konkretni_letovi[sifra_konkretnog_leta]['datum_i_vreme_polaska']
+        datum_dolaska_karte=svi_konkretni_letovi[sifra_konkretnog_leta]['datum_i_vreme_dolaska']
+        korisnicko_ime_putnika_na_karti=karta['putnici'][0]['korisnicko_ime']
+
+        if polaziste_prazno: polaziste=polaziste_karte
+        if odrediste_prazno: odrediste=odrediste_karte
+        if datum_polaska_prazan: datum_polaska=datum_polaska_karte
+        if datum_dolaska_prazan: datum_dolaska=datum_dolaska_karte
+        if korisnicko_ime_putnika_prazno: korisnicko_ime_putnika=korisnicko_ime_putnika_na_karti
+
+        if polaziste==polaziste_karte and odrediste==odrediste_karte and datum_dolaska==datum_dolaska_karte and datum_polaska==datum_polaska_karte and korisnicko_ime_putnika==korisnicko_ime_putnika_na_karti:
+            karte_ret.append(copy.copy(karta))
+
+    return karte_ret
 
 if __name__ == '__main__':
     pass
