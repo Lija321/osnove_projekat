@@ -96,7 +96,7 @@ def rand_valid_model_aviona():
     return {
         "naziv": rand_str(3),
         "broj_redova": random.randint(0,20),
-        "pozicija_sedista": rand_seat_positions(),
+        "pozicije_sedista": rand_seat_positions(),
         "id": random.randint(0,20),
     }
 
@@ -107,14 +107,30 @@ def gen_rand_valid_model_aviona(num):
 
 
 def rand_valid_konkretan_let():
+    zauzetost = []
+    for _ in range(3):
+        zauzetost.append([False for _ in range(5)])
     return {
-        "sifra": random.randint(0,100),
+        "sifra": random.randint(0, 100),
         "broj_leta": rand_str(4),
         "datum_i_vreme_polaska": rand_datetime(),
         "datum_i_vreme_dolaska": rand_datetime(),
-    }
+        "zauazetost": zauzetost}
 
 
 def gen_rand_valid_konkretan_let(num):
     for i in range(num):
         yield rand_valid_konkretan_let()
+
+def rand_datetime_end(**kwargs):
+    start = datetime.date(2000, 1, 1) if "start" not in kwargs \
+            else datetime.datetime.strptime(kwargs["start"], "%d.%m.%Y.").date()
+    end = datetime.date(2023, 12, 31) if "end" not in kwargs \
+        else datetime.datetime.strptime(kwargs["end"], "%d.%m.%Y.").date()
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = random.randrange(int_delta)
+
+    date = start + datetime.timedelta(seconds=random_second)
+    dt = datetime.fdatetime.combine(date, datetime.datetime.min.time())
+    return dt

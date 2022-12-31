@@ -405,7 +405,7 @@ class LetoviTest(unittest.TestCase):
         self.assertTrue(len(lista)<=10, msg="Ima previse elemenata liste")
         self.assertDictEqual(
             svi_letovi["aa44"],
-            lista[0],
+            lista[len(lista)-1],
             msg="Vrednosti od leta nisu dobre"
         )
     def test_trazenje_10_najjeftinijih_letova_uspesno_sa_polazistem(self):
@@ -959,17 +959,51 @@ class LetoviTest(unittest.TestCase):
 
 
     def test_pregled_nerealizoivanih_letova(self):
+        dani = list({random.randint(0, 6): True for n in range(random.randint(1, 7))}.keys())
+        dani.sort()
+        pocetak_operativnosti = rand_datetime()
+        kraj_operativnosti = pocetak_operativnosti + timedelta(days=10)
         ocekivani_let = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
-            "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100))
+            "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100)),
+            "sifra_polazisnog_aerodroma": rand_str(3),
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),
+            "vreme_sletanja": rand_time_str(),
+            "sletanje_sutra": True,
+            "prevoznik": rand_str(4),
+            "dani": dani,
+            "model": {},
+            "cena": random.randint(0,10000),
+            "datum_kraja_operativnosti": kraj_operativnosti
         }
         neocekivani_let_1 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
-            "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100))
+            "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
+            "sifra_polazisnog_aerodroma": rand_str(3),
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),
+            "vreme_sletanja": rand_time_str(),
+            "sletanje_sutra": True,
+            "prevoznik": rand_str(4),
+            "dani": dani,
+            "model": {},
+            "cena": random.randint(0, 10000),
+            "datum_kraja_operativnosti": kraj_operativnosti
         }
         neocekivani_let_2 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
-            "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100))
+            "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
+            "sifra_polazisnog_aerodroma": rand_str(3),
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),
+            "vreme_sletanja": rand_time_str(),
+            "sletanje_sutra": True,
+            "prevoznik": rand_str(4),
+            "dani": dani,
+            "model": {},
+            "cena": random.randint(0, 10000),
+            "datum_kraja_operativnosti": kraj_operativnosti
         }
         svi_letovi = {
             neocekivani_let_1["broj_leta"]: neocekivani_let_1,
@@ -986,14 +1020,16 @@ class LetoviTest(unittest.TestCase):
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0,100)
 
         }
         neocekivani_let_1 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
         }
         svi_letovi = {
             neocekivani_let_1["broj_leta"]: neocekivani_let_1,
@@ -1018,14 +1054,16 @@ class LetoviTest(unittest.TestCase):
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
 
         }
         neocekivani_let_1 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
         }
         svi_letovi = {
             neocekivani_let_1["broj_leta"]: neocekivani_let_1,

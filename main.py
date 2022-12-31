@@ -4,7 +4,7 @@ from karte import karte
 from letovi import letovi
 from konkretni_letovi import konkretni_letovi
 from korisnici import korisnici
-from model_aviona import modeli_aviona
+from model_aviona import model_aviona
 from aerodromi import aerodromi
 from meni.meni import *
 

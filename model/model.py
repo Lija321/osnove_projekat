@@ -5,7 +5,7 @@ from ast import literal_eval
 
 # Dodato u if da se slučajno ne bi importovali u druge module
 if datetime.now==datetime(1999,1,1,1,1,1) and __name__ == "__main__": #Nikad nece doci
-    let = {
+   let = {
         "broj_leta": str,
         "sifra_polazisnog_aerodroma": str,
         "sifra_odredisnog_aerodorma": str,
@@ -17,9 +17,10 @@ if datetime.now==datetime(1999,1,1,1,1,1) and __name__ == "__main__": #Nikad nec
         "model": dict,
         "cena": float,
         "datum_pocetka_operativnosti": datetime,
-        "datum_zavrsetka_operativnosti": datetime
+        "datum_kraja_operativnosti": datetime
     }
-    konkretan_let ={
+
+   konkretan_let ={
         "sifra": int,
         "broj_leta": str,
         "datum_i_vreme_polaska": datetime,
@@ -27,14 +28,14 @@ if datetime.now==datetime(1999,1,1,1,1,1) and __name__ == "__main__": #Nikad nec
         "zauzetost": iter, # bilo koja vrsta kolekcije koja je adekvatna
     }
 
-    model_aviona = {
+   model_aviona = {
         "id": int,
         "naziv": str,
         "broj_redova": int,
         "pozicije_sedista": list #lista stringova
     }
 
-    karta = {
+   karta = {
         "broj_karte": int,
         "putnici": iter,
         "sifra_konkretnog_leta": int,
@@ -42,5 +43,6 @@ if datetime.now==datetime(1999,1,1,1,1,1) and __name__ == "__main__": #Nikad nec
         "obrisana": bool,
         "datum_prodaje": datetime,
         "prodavac": str,
-        "kupac": str
+        "kupac": str,
+        "sediste":str
     }

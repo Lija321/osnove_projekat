@@ -75,7 +75,26 @@ class KonkretanLetTest(unittest.TestCase):
                          msg="Dužine učitanih konkretnih letova nisu jednake")
         for id in ucitani_letovi:
             ucitan_aerodrom = ucitani_letovi[id]
-            self.assertDictEqual(referentni_konkretni_letovi[id], ucitani_letovi[id],
+            referentni_konkretni_letovi = {
+                let["sifra"]: let for let in gen_rand_valid_konkretan_let(10)
+            }
+            konkretni_letovi.sacuvaj_kokretan_let(self.putanja, "|", referentni_konkretni_letovi)
+
+            ucitani_letovi = konkretni_letovi.ucitaj_konkretan_let(self.putanja, "|")
+            self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
+            self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
+                             msg="Dužine učitanih konkretnih letova nisu jednake")
+            for id in ucitani_letovi:
+                ucitan_aerodrom = ucitani_letovi[id]
+                self.assertEqual(referentni_konkretni_letovi[id]["broj_leta"], ucitani_letovi[id]["broj_leta"],
+                                 msg="Učitani konkretni letovi se ne poklapaju")
+                self.assertEqual(referentni_konkretni_letovi[id]["datum_i_vreme_dolaska"],
+                                 ucitani_letovi[id]["datum_i_vreme_dolaska"],
+                                 msg="Učitani konkretni letovi se ne poklapaju")
+                self.assertEqual(referentni_konkretni_letovi[id]["datum_i_vreme_polaska"],
+                                 ucitani_letovi[id]["datum_i_vreme_polaska"],
+                                 msg="Učitani konkretni letovi se ne poklapaju")
+                self.assertEqual(referentni_konkretni_letovi[id]["sifra"], ucitani_letovi[id]["sifra"],
                                  msg="Učitani konkretni letovi se ne poklapaju")
 
 

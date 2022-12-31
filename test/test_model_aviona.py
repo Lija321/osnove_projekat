@@ -3,7 +3,7 @@ import unittest
 import copy
 import random
 
-from model_aviona import modeli_aviona
+from model_aviona import model_aviona
 from test.test_utils import rand_str, rand_valid_model_aviona, gen_rand_valid_model_aviona
 
 
@@ -21,11 +21,11 @@ class ModelMvionaTest(unittest.TestCase):
 
     def test_kreiraj_validan_model_aviona(self):
         model = copy.deepcopy(self.pun_model_aviona)
-        svi_modeli_aviona = modeli_aviona.kreiranje_modela_aviona(
+        svi_modeli_aviona = model_aviona.kreiranje_modela_aviona(
             {},
             self.pun_model_aviona["naziv"],
             self.pun_model_aviona["broj_redova"],
-            self.pun_model_aviona["pozicija_sedista"])
+            self.pun_model_aviona["pozicije_sedista"])
         model["id"]=svi_modeli_aviona[0]["id"]
         self.assertIsNotNone(svi_modeli_aviona, msg="Nije vraćena kolekcija modela")
         self.assertEqual(1, len(svi_modeli_aviona.keys()), msg="Model nije u kolekciji")
@@ -47,29 +47,29 @@ class ModelMvionaTest(unittest.TestCase):
             model = copy.deepcopy(self.pun_model_aviona)
             model[key] = None
             with self.assertRaises(Exception, msg=f"Provera za nedostajucu vrednost: {key}"):
-                modeli_aviona.kreiranje_modela_aviona(
+                model_aviona.kreiranje_modela_aviona(
                     {},
                     model["naziv"],
                     model["broj_redova"],
-                    model["pozicija_sedista"]
+                    model["pozicije_sedista"]
                    )
 
     def test_kreiraj_modela_prazan_string(self):
         with self.assertRaises(Exception, msg=f"Provera za nedostajucu vrednost: naziv"):
-            modeli_aviona.kreiranje_modela_aviona(
+            model_aviona.kreiranje_modela_aviona(
                 {},
                 "",
                 self.pun_model_aviona["broj_redova"],
-                self.pun_model_aviona["pozicija_sedista"]
+                self.pun_model_aviona["pozicije_sedista"]
             )
 
     def testiraj_aerodromi_fajl(self):
         referentni_modeli = {
             aerodrom["id"]: aerodrom for aerodrom in gen_rand_valid_model_aviona(10)
         }
-        modeli_aviona.sacuvaj_modele_aviona(self.putanja, "|", referentni_modeli)
+        model_aviona.sacuvaj_modele_aviona(self.putanja, "|", referentni_modeli)
 
-        ucitani_modeli = modeli_aviona.ucitaj_modele_aviona(self.putanja, "|")
+        ucitani_modeli = model_aviona.ucitaj_modele_aviona(self.putanja, "|")
         self.assertIsNotNone(ucitani_modeli, msg="Nisu učitani aerodromi iz fajla")
         self.assertEqual(len(referentni_modeli), len(ucitani_modeli),
                          msg="Dužine učitanih aerodroma nisu jednake")

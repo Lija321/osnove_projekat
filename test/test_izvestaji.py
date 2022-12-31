@@ -13,8 +13,8 @@ from datetime import date, timedelta
 class IzvestajiTest(unittest.TestCase):
     def setUp(self):
         self.modeli_aviona = {
-            123: {"id": 123, "naziv": "Boeing747", "broj_redova": 44, "pozicija_sedista": "A"},
-            124: {"id": 124, "naziv": "Boeing748", "broj_redova": 45, "pozicija_sedista": "B"}
+            123: {"id": 123, "naziv": "Boeing747", "broj_redova": 44, "pozicije_sedista": "A"},
+            124: {"id": 124, "naziv": "Boeing748", "broj_redova": 45, "pozicije_sedista": "B"}
         }
         self.pun_let = {
             "broj_leta": "aa33",
@@ -43,7 +43,7 @@ class IzvestajiTest(unittest.TestCase):
             "sifra_konkretnog_leta":1234,
             "kupac": ''.join(random.sample(string.ascii_lowercase, 6)),
             "prodavac": ''.join(random.sample(string.ascii_lowercase, 7)),
-            "sifra_sedista": "b3",
+            "sediste": "b3",
             "datum_prodaje" : rand_datetime(),
             "obrisana": False
         }
@@ -454,7 +454,7 @@ class IzvestajiTest(unittest.TestCase):
         karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = 2
         karta1["datum_prodaje"] = today.strftime("%d.%m.%Y.")
-        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7)),
+        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7))
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_prodaje"] = today.strftime("%d.%m.%Y.")
         karta2["broj_karte"] = 3
@@ -473,4 +473,4 @@ class IzvestajiTest(unittest.TestCase):
         )
 
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
-        self.assertEqual(1, len(rezultat), msg="")
+        self.assertEqual(2, len(rezultat), msg="")

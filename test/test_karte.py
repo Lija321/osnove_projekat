@@ -69,7 +69,7 @@ class KarteTest(unittest.TestCase):
              "sifra_konkretnog_leta": 1234,
             "kupac": rand_str(10), # k ime od kupca
             "prodavac": rand_str(10),
-            "sifra_sedista": odabrano_sediste,
+            "sediste": odabrano_sediste,
             "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_i_vreme_polaska']),
             "obrisana": False
         }
@@ -320,11 +320,14 @@ class KarteTest(unittest.TestCase):
                 "sifra_konkretnog_leta": random.randint(1000, 10000),
                 "kupac": rand_str(10),  # k ime od kupca
                 "prodavac": rand_str(10),
-                "sifra_sedista": odaberi_sediste(),
-                "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_i_vreme_polaska']),
-                "obrisana": False
+                "sediste": odaberi_sediste(),
+                "datum_prodaje": rand_datetime_end(end=self.konkretan_let['datum_i_vreme_polaska']),
+                "obrisana": False,
+                "status": "",
+                "putnici": []
             } for i in range(100)
         }
+        print(referentne_karte)
         karte.sacuvaj_karte(referentne_karte, self.putanja, "|")
         ucitane_karte = karte.ucitaj_karte_iz_fajla(self.putanja, "|")
         self.assertIsNotNone(ucitane_karte, msg="Nisu učitane karte iz fajla")

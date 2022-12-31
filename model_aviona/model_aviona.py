@@ -14,7 +14,7 @@ def kreiranje_modela_aviona(
     if pozicija_sedista==[] or pozicija_sedista is None: raise Exception("Pozicija sedista prazna")
 
     sledeci_id=sledeci_id_set(svi_modeli_aviona)
-    model = {"id": sledeci_id, "naziv": naziv, "broj_redova": broj_redova, "pozicija_sedista": pozicija_sedista}
+    model = {"id": sledeci_id, "naziv": naziv, "broj_redova": broj_redova, "pozicije_sedista": pozicija_sedista}
     svi_modeli_aviona[sledeci_id] = model
     #sacuvaj_modele(svi_modeli, './fajlovi/modeli.csv')
     return svi_modeli_aviona
@@ -48,7 +48,7 @@ def sacuvaj_modele_aviona(putanja: str, separator: str, svi_modeli_aviona: dict)
             red+=str(model_aviona['id'])+separator
             red+=model_aviona['naziv']+separator
             red += str(model_aviona['broj_redova'])+separator
-            red += ''.join(model_aviona['pozicija_sedista'])+'\n'
+            red += ''.join(model_aviona['pozicije_sedista'])+'\n'
             f.write(red)
 
 """
@@ -67,6 +67,6 @@ def ucitaj_modele_aviona(putanja: str, separator: str) -> dict:
         model['id']=int(red[0])
         model['naziv'] = red[1]
         model['broj_redova'] = int(red[2])
-        model['pozicija_sedista'] = list(red[3])
+        model['pozicije_sedista'] = list(red[3])
         svi_modeli[model['id']] = model
     return svi_modeli

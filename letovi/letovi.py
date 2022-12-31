@@ -125,11 +125,12 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
     #Sortiranje po ceni; iskreno ne znam kako radi
     sortirani_letovi=sorted(filtrirani_letovi, key=lambda i: i['cena'])
 
+    sortirani_letovi=sortirani_letovi[::-1]
     #Ako ih je manje od 10 vrati sve
     if len(sortirani_letovi) <=10:
         return sortirani_letovi
     else: #Inace vrati prvih 10
-        return sortirani_letovi[:10]
+        return sortirani_letovi[-10:]
 
 
 def provera_validnosti_podatka_leta(broj_leta, sifra_odredisnog_aerodorma, sifra_polazisnog_aerodroma, prevoznik,
