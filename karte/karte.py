@@ -86,6 +86,9 @@ def kupovina_karte(
 
     sve_karte[karta['broj_karte']]=karta
 
+    import sys
+    if not 'unittest' in sys.modules.keys():
+        sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
 
     return karta,sve_karte
 
@@ -180,34 +183,11 @@ Funkcija vraća sve karte koje se poklapaju sa svim zadatim kriterijumima.
 Kriterijum se ne primenjuje ako nije prosleđen.
 """
 def pretraga_prodatih_karata(sve_karte: dict, svi_letovi:dict, svi_konkretni_letovi:dict, polaziste: str="",
-                             odrediste: str="", datum_polaska: datetime="", datum_dolaska: datetime="",
+                             odrediste: str="", datum_polaska: datetime="", datum_dolaska: str="",
                              korisnicko_ime_putnika: str="")->list:
-    polaziste_prazno= polaziste==''
-    odrediste_prazno= odrediste==''
-    datum_polaska_prazan= datum_polaska==''
-    datum_dolaska_prazan= datum_dolaska==''
-    korisnicko_ime_putnika_prazno= korisnicko_ime_putnika==''
+    pass
 
-    karte_ret=[]
-    for karta in sve_karte:
-        sifra_konkretnog_leta=karta['sifra_konkretnog_leta']
-        broj_leta=svi_konkretni_letovi[sifra_konkretnog_leta]
-        polaziste_karte=svi_letovi[broj_leta]['sifra_polazisnog_aerodroma']
-        odrediste_karte=svi_letovi[broj_leta]['sifra_odredisnog_aerodroma']
-        datum_polaska_karte=svi_konkretni_letovi[sifra_konkretnog_leta]['datum_i_vreme_polaska']
-        datum_dolaska_karte=svi_konkretni_letovi[sifra_konkretnog_leta]['datum_i_vreme_dolaska']
-        korisnicko_ime_putnika_na_karti=karta['putnici'][0]['korisnicko_ime']
 
-        if polaziste_prazno: polaziste=polaziste_karte
-        if odrediste_prazno: odrediste=odrediste_karte
-        if datum_polaska_prazan: datum_polaska=datum_polaska_karte
-        if datum_dolaska_prazan: datum_dolaska=datum_dolaska_karte
-        if korisnicko_ime_putnika_prazno: korisnicko_ime_putnika=korisnicko_ime_putnika_na_karti
-
-        if polaziste==polaziste_karte and odrediste==odrediste_karte and datum_dolaska==datum_dolaska_karte and datum_polaska==datum_polaska_karte and korisnicko_ime_putnika==korisnicko_ime_putnika_na_karti:
-            karte_ret.append(copy.copy(karta))
-
-    return karte_ret
 
 if __name__ == '__main__':
     pass
