@@ -6,7 +6,7 @@ from functools import reduce
 from datetime import datetime
 import csv
 from ast import literal_eval
-import copy
+from copy import copy
 
 
 def sledeci_broj_karte_set(sve_karte:dict):
@@ -86,10 +86,6 @@ def kupovina_karte(
 
     sve_karte[karta['broj_karte']]=karta
 
-    import sys
-    if not 'unittest' in sys.modules.keys():
-        sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
-
     return karta,sve_karte
 
 """
@@ -103,7 +99,7 @@ def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: iter) -> list:
         putnici=karta['putnici']
         for putnik in putnici: #Ako je putnik u korisnicima dodaj kartu
             if putnik['korisnicko_ime']==korisnik['korisnicko_ime']:
-                karte_ret.append(karta)
+                karte_ret.append(copy(karta))
                 continue #Vec dodata idi dalje
     return karte_ret
 
@@ -163,7 +159,7 @@ def izmena_karte(
     sediste=None
 ) -> dict:
     if not broj_karte in sve_karte.keys(): raise Exception("Nepostojeci broj karte")
-    karta_za_menjanje=copy.copy(sve_karte[broj_karte])
+    karta_za_menjanje=copy(sve_karte[broj_karte])
 
     if not nova_sifra_konkretnog_leta is None:
         if not nova_sifra_konkretnog_leta in svi_konkretni_letovi.keys(): raise Exception("Nov izabran let ne postoji")

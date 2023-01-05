@@ -40,22 +40,10 @@ svi_letovi=letovi.ucitaj_letove_iz_fajla('./fajlovi/letovi.csv',',')
 svi_konkretni_letovi=konkretni_letovi.ucitaj_konkretan_let('./fajlovi/konkretni_letovi.csv',',')
 sve_karte=karte.ucitaj_karte_iz_fajla('./fajlovi/karte.csv',',')
 svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
-svi_modeli=model.ucitaj_modele('./fajlovi/modeli.csv',',')
+svi_modeli=model_aviona.ucitaj_modele_aviona('./fajlovi/modeli.csv',',')
 
-sva_zauzetost=ucitaj_zuzetost('./fajlovi/zauzetost.csv')
 
-da_ne_dict={
-        "da":True,
-        'ne':False,
-        "y":True,
-        'n':False,
-        'yes':True,
-        'no':False,
-        'd':True,
-        'n':False,
-        'true':True,
-        'false':False
-    }
+
 
 def prijava():
     cls()
@@ -119,10 +107,10 @@ def registracija():
 
 def pregled_nerez_letova():
     global svi_letovi
-    letovi.pregled_nerealizovanih_letova(svi_letovi)
+    lista_letova=letovi.pregled_nerealizoivanih_letova(svi_letovi)
+    prikaz_letova(lista_letova)
 
 def pretraga_letova_submeni(kupovina=False):
-    if not kupovina: cls()
     filteri_unos={
         '1': "",
         '2': "",
@@ -176,25 +164,10 @@ def pretraga_letova_submeni(kupovina=False):
                                              filteri_unos['5'],
                                              filteri_unos['6'],
                                              filteri_unos['7'])
-            if not kupovina:
-                formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
-                                'Sletanje sutra',
-                                'Prevoznik','Cena','Datum polaska','Datum dolaska']
-                keys = ['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
-                        'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
-                        'cena','datum_i_vreme_polaska','datum_i_vreme_dolaska']
-            else:
-                formatiranje = ['Sifra leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
-                                'Sletanje sutra',
-                                'Prevoznik', 'Cena', 'Datum polaska', 'Datum dolaska']
-                keys = ['sifra', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
-                        'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
-                        'cena', 'datum_i_vreme_polaska', 'datum_i_vreme_dolaska']
-            podaci = []
-            for let in pretrazeni_letovi:
-                lista_leta = konkretan_let_format_za_prikaz(let, keys,svi_letovi)
-                podaci.append(lista_leta)
-            tabelarni_prikaz(podaci, formatiranje, 15)
+
+
+            prikaz_konkretnih_letova(pretrazeni_letovi,svi_letovi)
+
             if kupovina: return
 
         except KeyboardInterrupt:
@@ -208,29 +181,62 @@ def trazenje_10_najjeftinijih_letova_submeni():
         print("Ctrl-C za nazad")
         while True:
             sifra_polazisnog_aerodroma = unesi("Polazisni aerodrom").upper()
-            if not len(sifra_polazisnog_aerodroma)==3 and len(sifra_odredisnog_aerodroma)==3:
+            if sifra_polazisnog_aerodroma is None: sifra_polazisnog_aerodroma=''
+
+            elif not len(sifra_polazisnog_aerodroma)==3 and sifra_polazisnog_aerodroma.isalpha():
                 print("Greska u unosenju")
                 continue
+
             sifra_odredisnog_aerodroma = unesi("Odredisni aerodrom").upper()
-            if not sifra_polazisnog_aerodroma.isalpha() and sifra_odredisnog_aerodroma.isalpha():
+            if sifra_odredisnog_aerodroma is None: sifra_odredisnog_aerodroma = ''
+
+            elif not len(sifra_odredisnog_aerodroma)==3 and sifra_odredisnog_aerodroma.isalpha():
                 print("Greska u unosenju")
                 continue
+
+
             najjeftinij_letovi=letovi.trazenje_10_najjeftinijih_letova(svi_letovi,sifra_polazisnog_aerodroma,sifra_odredisnog_aerodroma)
-            formatiranje=['Broj leta','Polaziste','Odrediste','Vreme sletanja','Vreme poletanja','Sletanje sutra',
-                          'Prevoznik','Cena']
-            keys=['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
-                  'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik','cena']
-            podaci=[]
-            for let in najjeftinij_letovi:
-                lista_leta=let_format_za_prikaz(let,keys)
-                podaci.append(lista_leta)
-            tabelarni_prikaz(podaci,formatiranje,15)
+            prikaz_letova(najjeftinij_letovi)
 
     except KeyboardInterrupt:
         return
 
 def fleksibilni_polasci_submeni():
-    pass
+    global svi_konkretni_letovi
+    global svi_letovi
+    while True:
+        try:
+            print('Ctrl-C za nazad')
+            polaziste=unesi('Polaziste').upper()
+            odrediste=unesi('Odrediste').upper()
+
+            datum_polaska=unesi('Datum polaska (dd.mm.yyyy)')
+            try:
+                datum_polaska = datetime.strptime(datum_polaska, '%d.%m.%Y')
+            except ValueError:
+                raise Exception("Datum polaska pogresno unet")
+
+            datum_dolaska=unesi('Datum dolaska (dd.mm.yyyy)')
+            try:
+                datum_dolaska = datetime.strptime(datum_dolaska, '%d.%m.%Y')
+            except ValueError:
+                raise Exception("Datum dolaska pogresno unet")
+
+            broj_fleksibilnih_dana = unesi('Broj fleksibilnih dana')
+            if broj_fleksibilnih_dana.isnumeric(): broj_fleksibilnih_dana=int(broj_fleksibilnih_dana)
+
+            moguci_letovi=letovi.fleksibilni_polasci(svi_letovi,
+                                       svi_konkretni_letovi,
+                                       polaziste,
+                                       odrediste,
+                                       datum_polaska,
+                                       broj_fleksibilnih_dana,
+                                       datum_dolaska)
+            prikaz_konkretnih_letova(moguci_letovi,svi_letovi)
+        except KeyboardInterrupt:
+            return
+        except Exception as msg:
+            print(msg)
 def kupovina_karata_submeni():
     cls()
     while True:
@@ -257,7 +263,7 @@ def ima_li_slobodnih(sifra_leta):
     if broj_slobodnih_mesta == 0:
         raise Exception('Nema slobodnih mesta')
     print(f'Broj slobodnih mesta >> {broj_slobodnih_mesta}')
-def kupovina_karte():
+def kupovina_karte(): #TODO
     global sve_karte
     while True:
         print('Ctrl-C za nazad')
@@ -319,30 +325,11 @@ def kupovina_karte():
         except Exception as msg:
             print(msg)
 
-def nadji_povezujuc(putnici,prosli_let,kupac):
-    global svi_letovi
-    global svi_konkretni_letovi
-    time_delta=timedelta(minutes=120)
-    polaziste=svi_letovi[prosli_let['broj_leta']]["sifra_odredisnog_aerodorma"]
-    datum_polaska=prosli_let['datum_i_vreme_dolaska']
-    vreme_donja_granica = datum_polaska
-    vreme_goranja_granica = datum_polaska + time_delta
-    letovi_moguci=letovi.pretraga_letova(svi_letovi,svi_konkretni_letovi,polaziste,'',vreme_donja_granica)
-    letovi_moguci+=letovi.pretraga_letova(svi_letovi,svi_konkretni_letovi,polaziste,'',vreme_goranja_granica)
-
-    temp_letovi=letovi_moguci[:]
-    letovi_moguci=[]
-    for let in temp_letovi:
-        datum_i_vreme_leta=let['datum_i_vreme_polaska']
-        if vreme_donja_granica <= datum_i_vreme_leta <= vreme_goranja_granica:
-            letovi_moguci.append(dict(let))
-
-    while True:
-        pass
 def check_in():
     pass
 def pregled_nerez_karata():
     pass
+
 def odjava():
     global aktivni_korisnik
     korisnici.logout(aktivni_korisnik['korisnicko_ime'])
@@ -462,14 +449,13 @@ def kreiranje_letova():
             svi_konkretni_letovi=konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi,svi_letovi[broj_leta])
 
             for let in svi_konkretni_letovi.values():
-                red={}
-                red['matrica']=letovi.podesi_matricu_zauzetosti(svi_letovi,let)
-                red['sifra']=let['sifra']
-                sva_zauzetost[let['sifra']]=red
+                if not 'zauzetost' in let.keys():
+                    letovi.podesi_matricu_zauzetosti(svi_letovi,let)
 
-            sacuvaj_zauzetost('./fajlovi/zauzetost.csv',sva_zauzetost)
 
+            letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
             konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
+
             cls()
             return
 
@@ -566,6 +552,7 @@ def izmena_letova():
             svi_konkretni_letovi=novi_svi_konkretni_letovi.copy()
             svi_konkretni_letovi = konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, #Pravi nove
                                                                               svi_letovi[broj_leta])
+            letovi.sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
             konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv', ',', svi_konkretni_letovi)
             cls()
             return
@@ -601,6 +588,7 @@ def neulogovan_meni():
     }
 
     while True:
+        print('')
         linija()
         print("Glavni meni")
         linija()
@@ -632,6 +620,7 @@ def ulogovan_meni_korisnik():
         'x': izlazak
     }
     while True:
+        print('')
         linija()
         print("Glavni meni")
         linija()
@@ -667,6 +656,7 @@ def ulogovan_meni_admin():
     }
 
     while True:
+        print('')
         linija()
         print("Glavni meni")
         linija()

@@ -1,0 +1,2 @@
+JU50,1500.0,[0~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},AirSerbia,NYC,BEG,False,12:00,23:00
+AA40,300.0,[1~ 6],2023-05-01 00:00:00,2023-02-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},WizzAir,LON,NCE,False,12:00,23:00

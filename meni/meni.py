@@ -2,8 +2,23 @@ import os
 import platform
 from common import konstante
 from collections import OrderedDict
+from copy import copy
 
 platforma_var=platform.system()
+
+da_ne_dict={
+        "da":True,
+        'ne':False,
+        "y":True,
+        'n':False,
+        'yes':True,
+        'no':False,
+        'd':True,
+        'n':False,
+        'true':True,
+        'false':False
+    }
+
 def cls():
     if platforma_var=="Windows":os.system('cls')
     elif platforma_var=="Linux":os.system("clear")
@@ -24,19 +39,49 @@ def dict_to_list(dict,keys):
 
 def tabelarni_prikaz(podaci, formatiranje, centriranje=15):
     red = '||'
-    for parametar in formatiranje:
-        red += f'{parametar:^{centriranje}} || '
+    if isinstance(centriranje,int):
+        centriranje=[centriranje]*len(formatiranje)
+    for parametar,cent in zip(formatiranje,centriranje):
+        red += f'{parametar:^{cent}} || '
     print(red)
     linija(len(red)-1)
 
     for row in podaci:
         red = '||'
-        for item in row:
+        for item,cent in zip(row,centriranje):
             item=str(item)
-            red += f'{item:^{centriranje}} || '
+            red += f'{item:^{cent}} || '
         print(red)
         linija(len(red)-1,'-')
 
+def prikaz_letova(letovi):
+    formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja', 'Sletanje sutra',
+                    'Prevoznik', 'Dani leta', 'Cena']
+    keys = ['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
+            'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik', 'dani', 'cena']
+    podaci = []
+    for let in letovi:
+        lista_leta = let_format_za_prikaz(let, keys)
+        podaci.append(copy(lista_leta))
+
+    centriranje = [15] * 9
+    centriranje[7] = 27
+    tabelarni_prikaz(podaci, formatiranje, centriranje)
+
+def prikaz_konkretnih_letova(letovi,svi_letovi):
+    formatiranje = ['Sifra leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
+                    'Sletanje sutra',
+                    'Prevoznik', 'Cena', 'Datum polaska', 'Datum dolaska']
+    keys = ['sifra', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
+            'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
+            'cena', 'datum_i_vreme_polaska', 'datum_i_vreme_dolaska']
+
+
+    podaci = []
+    for let in letovi:
+        lista_leta = konkretan_let_format_za_prikaz(let, keys, svi_letovi)
+        podaci.append(lista_leta)
+    tabelarni_prikaz(podaci, formatiranje, 15)
 
 def dani_to_string(dani):
     dani_dict={

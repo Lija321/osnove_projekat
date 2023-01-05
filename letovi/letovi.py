@@ -1,11 +1,10 @@
-import copy
-
 from common.konstante import PONEDELJAK,UTORAK,SREDA,CETVRTAK,PETAK,SUBOTA,NEDELJA
 import json
 from ast import literal_eval
 from datetime import datetime, timedelta, date
 import time
 from meni.meni import *
+from copy import copy
 
 """
 Funkcija koja omogucuje korisniku da pregleda informacije o letovima
@@ -27,7 +26,7 @@ def pregled_nerealizoivanih_letova(svi_letovi: dict):
     lista_leta=[]
     for let in svi_letovi.values():
         if let['datum_pocetka_operativnosti']<datetime.now():continue
-        lista_leta.append(let)
+        lista_leta.append(copy(let))
     return lista_leta
 
 """
@@ -36,7 +35,7 @@ Prolazi kroz sve redove i sve poziciej sedišta i postavlja ih na "nezauzeto".
 """
 def podesi_matricu_zauzetosti(svi_letovi:dict, konkretan_let:dict): #SAMO BOG ZNA ZASTO
     broj_leta=konkretan_let['broj_leta']
-    ret=copy.copy(svi_letovi[broj_leta]['model']['pozicije_sedista'])
+    ret=copy(svi_letovi[broj_leta]['model']['pozicije_sedista'])
     for i in range(0,len(ret)):
         ret[i]=False
     ret=[ret]*svi_letovi[broj_leta]['model']['broj_redova']
@@ -105,7 +104,7 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi:dict, polaziste: str = ""
                     pass
 
         if ispunjava_filtere:  #Ako nijedan filter nije pao -> dodaj
-            letovi_ret.append(dict(let))
+            letovi_ret.append(copy(let))
     return letovi_ret
 
 
@@ -120,7 +119,7 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
         if polaziste_prazno: polaziste=let["sifra_polazisnog_aerodroma"]
 
         if let["sifra_polazisnog_aerodroma"]==polaziste and let["sifra_odredisnog_aerodorma"]==odrediste:
-            filtrirani_letovi.append(dict(let))
+            filtrirani_letovi.append(copy(let))
 
     #Sortiranje po ceni; iskreno ne znam kako radi
     sortirani_letovi=sorted(filtrirani_letovi, key=lambda i: i['cena'])
@@ -337,10 +336,10 @@ def checkin(karta, svi_letovi: dict, konkretni_let: dict, red: int, pozicija: st
 
 
     red_index=red-1
-    pozicija_sedista=copy.copy(svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista'])
+    pozicija_sedista=copy(svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista'])
     pozicija_index=pozicija_sedista.index(pozicija)
 
-    zauzetost=copy.copy(konkretni_let['zauzetost'])
+    zauzetost=copy(konkretni_let['zauzetost'])
 
     if zauzetost[red_index][pozicija_index]==True: raise Exception("Mesto zauzeto")
 
@@ -371,7 +370,7 @@ def povezani_letovi(svi_letovi: dict, svi_konkretni_letovi: dict, konkretni_let:
     for let in temp_letovi:
         datum_i_vreme_leta = let['datum_i_vreme_polaska']
         if vreme_donja_granica <= datum_i_vreme_leta <= vreme_goranja_granica:
-            letovi_moguci.append(dict(let))
+            letovi_moguci.append(copy(let))
 
     return letovi_moguci
 
@@ -385,11 +384,13 @@ def fleksibilni_polasci(svi_letovi: dict, konkretni_letovi: dict, polaziste: str
     opseg=timedelta(days=broj_fleksibilnih_dana)
     temp_letovi=moguci_letovi[:]
     moguci_letovi=[]
-    donja_granica=datum_polaska-opseg
-    goranja_granica=datum_polaska+opseg
+    donja_granica_polaska=datum_polaska-opseg
+    goranja_granica_polaska=datum_polaska+opseg
+    donja_granica_dolaska = datum_dolaska - opseg
+    goranja_granica_dolaska = datum_dolaska + opseg
     for let in temp_letovi:
-        if donja_granica <= let['datum_i_vreme_polaska'] <= goranja_granica:
-            moguci_letovi.append(let)
+        if donja_granica_polaska <= let['datum_i_vreme_polaska'] <= goranja_granica_polaska and donja_granica_dolaska <= let['datum_i_vreme_dolaska'] <= goranja_granica_dolaska :
+            moguci_letovi.append(copy(let))
 
     return moguci_letovi
 
