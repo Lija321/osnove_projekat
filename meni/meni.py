@@ -113,6 +113,21 @@ def let_format_za_prikaz(let,keys):
     lista_leta = dict_to_list(let_copy, keys)
     return lista_leta
 
+def karta_format_za_prikaz(karta,keys,svi_letovi,svi_konkretni_letovi):
+    karta_prikaz={}
+    karta_prikaz['broj_karte']=copy(karta['broj_karte'])
+    konkretan_let = copy(svi_konkretni_letovi[karta['sifra_konkretnog_leta']])
+    let=copy(svi_letovi[konkretan_let['broj_leta']])
+    karta_prikaz['sifra_polazisnog_aerodroma']=let['sifra_polazisnog_aerodroma']
+    karta_prikaz['sifra_odredisnog_aerodorma']=let['sifra_odredisnog_aerodorma']
+    karta_prikaz['vreme_sletanja']=let['vreme_sletanja']
+    karta_prikaz['vreme_poletanja']=let['vreme_poletanja']
+    karta_prikaz["datum_i_vreme_polaska"] = konkretan_let["datum_i_vreme_polaska"].date()
+    karta_prikaz["datum_i_vreme_dolaska"] = konkretan_let["datum_i_vreme_dolaska"].date()
+    lista_let = dict_to_list(karta_prikaz,keys)
+    return lista_let
+
+
 def konkretan_let_format_za_prikaz(konkreatan_let,keys,svi_letovi):
     konkreatan_let_copy=dict(konkreatan_let)
     let_copy=dict(svi_letovi[konkreatan_let_copy['broj_leta']])

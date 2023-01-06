@@ -367,7 +367,26 @@ def check_in():
     pass
 def pregled_nerez_karata():
     nerealizovane_karte=karte.pregled_nerealizovanaih_karata(aktivni_korisnik,list(sve_karte.values()))
-    print(nerealizovane_karte)
+    formatiranje=['Broj karte',
+                  'Polaziste',
+                  'Odrediste',
+                  'Vreme poletanja',
+                  'Vreme sletanja',
+                  'Datum poletanja',
+                  'Datum Sletanja']
+    keys=['broj_karte',
+          'sifra_polazisnog_aerodroma',
+          'sifra_odredisnog_aerodorma',
+          'vreme_poletanja',
+          'vreme_sletanja',
+          'datum_i_vreme_polaska',
+          'datum_i_vreme_dolaska']
+    podaci = []
+    for karta in nerealizovane_karte:
+        karta_lista = karta_format_za_prikaz(karta,keys,svi_letovi,svi_konkretni_letovi)
+        podaci.append(karta_lista)
+    tabelarni_prikaz(podaci, formatiranje, 15)
+
 
 def odjava():
     global aktivni_korisnik
