@@ -19,6 +19,9 @@ da_ne_dict={
         'false':False
     }
 
+def print_exception(msg):
+    print(msg.__class__.__name__, msg)
+
 def cls():
     if platforma_var=="Windows":os.system('cls')
     elif platforma_var=="Linux":os.system("clear")

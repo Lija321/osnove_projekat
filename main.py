@@ -255,7 +255,8 @@ def kupovina_karata_submeni():
         return
 
 def ima_li_slobodnih(sifra_leta):
-    slobodna_mesta = sva_zauzetost[sifra_leta]['matrica']
+    global svi_konkretni_letovi
+    slobodna_mesta = svi_konkretni_letovi[sifra_leta]['zauzetost']
     broj_slobodnih_mesta = 0
     for red in slobodna_mesta:
         for mesto in red:
@@ -263,7 +264,8 @@ def ima_li_slobodnih(sifra_leta):
     if broj_slobodnih_mesta == 0:
         raise Exception('Nema slobodnih mesta')
     print(f'Broj slobodnih mesta >> {broj_slobodnih_mesta}')
-def kupovina_karte(): #TODO
+
+def kupovina_karte():
     global sve_karte
     while True:
         print('Ctrl-C za nazad')
@@ -287,48 +289,85 @@ def kupovina_karte(): #TODO
                 kupuje_za_sebe=da_ne_dict[kupuje_za_sebe]
                 break
 
-            prvi_prolaz=True
+            #prvi_prolaz=True
             putnici = []
             while True:
                 kupac=aktivni_korisnik
 
                 if kupuje_za_sebe:
                     putnici.append(aktivni_korisnik)
-                    slobodna_mesta = sva_zauzetost[sifra_leta]['matrica']
-                    sve_karte=karte.kupovina_karte(sve_karte,svi_konkretni_letovi,sifra_leta,
-                                         putnici[-1],slobodna_mesta,kupac) #putnici[-1] poslednji dodat
+                    slobodna_mesta = svi_konkretni_letovi[sifra_leta]['zauzetost']
+                    karta,sve_karte=karte.kupovina_karte(sve_karte,svi_konkretni_letovi,sifra_leta,
+                                         [putnici[-1]],slobodna_mesta,kupac) #putnici[-1] poslednji dodat
                     kupuje_za_sebe=False
                 else:
-                    ime=unesi("Ime putnika")
-                    prezime=unesi("Prezime putnika")
-                    putnik={'ime':ime,'prezime':prezime}
+                    while True:
+                        ime=unesi("Korisnicko ime putnika")
+                        if not ime in svi_korisnici.keys():
+                            print("Korisnik ne postoji")
+                            continue
+                        break
+                    putnik=svi_korisnici[ime]
                     putnici.append(putnik)
-                    slobodna_mesta = sva_zauzetost[sifra_leta]['matrica']
-                    sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
-                                                     putnici[-1], slobodna_mesta, kupac)
-                    prvi_prolaz=False
+                    slobodna_mesta = svi_konkretni_letovi[sifra_leta]['zauzetost']
+                    karta,sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
+                                                     [putnici[-1]], slobodna_mesta, kupac)  #putnici[-1] poslednji dodat
+                    #prvi_prolaz=False
 
+                karte.sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
                 print("1. Dodaj putnike 1\n2. Kupi za povezujuci let 2\n x. Kraj kupovine ")
                 unos=unesi()
                 if unos=='1':
                     continue
                 elif unos=='2':
-                    nadji_povezujuc(putnici,svi_konkretni_letovi[sifra_leta],kupac)
+                    kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac)
+                    return
                 elif unos=='x':
                     return
-
-
-
 
         except KeyboardInterrupt:
             return
         except Exception as msg:
+            print_exception(msg)
+
+def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac):
+    global sve_karte
+    global svi_konkretni_letovi
+    while True:
+        try:
+            print("Ctrl-C za nazad")
+            moguci_letovi=letovi.povezani_letovi(svi_letovi,
+                                                 svi_konkretni_letovi,
+                                                 svi_konkretni_letovi[sifra_leta])
+            prikaz_konkretnih_letova(moguci_letovi,svi_letovi)
+            sifra_sledeceg_leta=unesi("Sifra sledeceg leta")
+            if sifra_sledeceg_leta.isnumeric(): sifra_sledeceg_leta=int(sifra_sledeceg_leta)
+            else: raise Exception("Sifra leta pogresno uneta")
+            slobodna_mesta=svi_konkretni_letovi[sifra_sledeceg_leta]['zauzetost']
+            for putnik in putnici:
+                karta,sve_karte=karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_sledeceg_leta,
+                                                             [putnik], slobodna_mesta, kupac)
+            karte.sacuvaj_karte(sve_karte, './fajlovi/karte.csv', ',')
+            while True:
+                print("1. Kupi za povezujuci let 1\n x. Kraj kupovine ")
+                unos = unesi()
+                if unos == '1':
+                    kupovin_karte_za_povezan_let(putnici, sifra_sledeceg_leta, kupac)
+                    return
+                elif unos == 'x':
+                    return
+                else:
+                    print("Uneta nepostojeca opcija")
+            return
+        except Exception as msg:
             print(msg)
+
 
 def check_in():
     pass
 def pregled_nerez_karata():
-    pass
+    nerealizovane_karte=karte.pregled_nerealizovanaih_karata(aktivni_korisnik,list(sve_karte.values()))
+    print(nerealizovane_karte)
 
 def odjava():
     global aktivni_korisnik
@@ -549,7 +588,7 @@ def izmena_letova():
             for sifra,let in svi_konkretni_letovi.items():#Brise stare
                 if not let['broj_leta']==broj_leta: novi_svi_konkretni_letovi[sifra]=let
 
-            svi_konkretni_letovi=novi_svi_konkretni_letovi.copy()
+            svi_konkretni_letovi=copy(novi_svi_konkretni_letovi)
             svi_konkretni_letovi = konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, #Pravi nove
                                                                               svi_letovi[broj_leta])
             letovi.sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
