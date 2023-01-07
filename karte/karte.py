@@ -123,11 +123,18 @@ def brisanje_karte(korisnik: dict, sve_karte: dict, broj_karte: int) -> dict:
 Funkcija koja čuva sve karte u fajl na zadatoj putanji.
 """
 def sacuvaj_karte(sve_karte: dict, putanja: str, separator: str):
+    red_cuvanja=['broj_karte','putnici','sifra_konkretnog_leta','status','kupac','obrisana','sediste']
     with open(putanja,'w') as f:
         for karta in sve_karte.values():
-            red=str(karta)+'\n' #cuva red po red kao string
-            f.write(red)
-
+            nov_red = ""
+            for key in red_cuvanja:
+                # Cuva se u datom redosledu
+                if key in karta.keys():
+                    nov_red += str(karta[key]).replace(',', '~')
+                    nov_red += separator
+            nov_red = nov_red[:-1]  # oduzima  se bespotrebni separator
+            nov_red += '\n'
+            f.write(nov_red)
 """
 Funkcija koja učitava sve karte iz fajla i vraća ih u rečniku.
 """
@@ -138,7 +145,18 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
     for red in karte:
         red=red.rstrip('\n')
         if red == '': continue
-        karta=literal_eval(red)# safe eval svakog reda
+        red=red.split(separator)
+        karta={}
+        karta['broj_karte']=int(red[0])
+        red[1]=red[1].replace('~',',')
+        karta['putnici']=literal_eval(red[1])
+        karta['sifra_konkretnog_leta']=int(red[2])
+        karta['status']=red[3]
+        red[4]=red[4].replace('~',',')
+        karta['kupac']=literal_eval(red[4])
+        karta['obrisana']=literal_eval(red[5])
+        if len(red)>6:
+            karta['sediste']=red[6]
 
         karte_ret[karta['broj_karte']]=karta
 

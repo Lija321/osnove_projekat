@@ -64,6 +64,12 @@ def prijava():
             print(msg)
 
 def izlazak():
+    letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
+    konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
+    karte.sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
+    korisnici.sacuvaj_korisnike('./fajlovi/korisnici.csv',',',svi_korisnici)
+    model_aviona.sacuvaj_modele_aviona('./fajlovi/modeli.csv',',',svi_modeli)
+
     print("Doviđenja!!!")
     sys.exit()
 

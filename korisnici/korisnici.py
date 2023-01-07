@@ -118,13 +118,20 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
 Funkcija koja čuva podatke o svim korisnicima u fajl na zadatoj putanji sa zadatim separatorom.
 """
 def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
+    red_cuvanja=['ime','prezime','korisnicko_ime','lozinka','email','pasos','drzavljanstvo','telefon','pol','uloga']
     if not type(svi_korisnici) is dict:
         raise Exception("Greska: svi_korisnici nije dict")
     with open(putanja, 'w') as f:
         for korisnik in svi_korisnici.values():
-            red = str(korisnik) + '\n'  # cuva red po red kao string
-            f.write(red)
-
+            nov_red = ""
+            for key in red_cuvanja:
+                # Cuva se u datom redosledu
+                if key in korisnik.keys():
+                    nov_red += str(korisnik[key]).replace(',', '~')
+                    nov_red += separator
+            nov_red = nov_red[:-1]  # oduzima  se bespotrebni separator
+            nov_red += '\n'
+            f.write(nov_red)
 
 """
 Funkcija koja učitava sve korisnika iz fajla na putanji sa zadatim separatorom. Kao rezultat vraća učitane korisnike.
@@ -140,7 +147,13 @@ def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:
     for red in korisnici:
         red = red.rstrip('\n')
         if red == '': continue
-        korisnik = literal_eval(str(red))  # safe eval svakog reda
+        red=red.split(separator)
+        korisnik = {}
+        red_cuvanja = ['ime', 'prezime', 'korisnicko_ime', 'lozinka', 'email', 'pasos', 'drzavljanstvo', 'telefon',
+                       'pol', 'uloga']
+        for i,key in enumerate(red_cuvanja):
+            korisnik[key]=red[i]
+
 
         korisnici_return[korisnik['korisnicko_ime']]= korisnik
 
