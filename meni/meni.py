@@ -19,6 +19,19 @@ da_ne_dict={
         'false':False
     }
 
+
+def print_sedista(matrica,pozicija_sedista):
+    centriranje_broja_red=len(str(len(matrica)))
+    ispis_reda=''
+    for br_reda,red in enumerate(matrica):
+        sedista_ispis=''
+        for i,sediste in enumerate(red):
+            if sediste==True:
+                sedista_ispis+='X'
+            else:
+                sedista_ispis+=pozicija_sedista[i]
+        ispis_reda=f'Red {br_reda+1:>{centriranje_broja_red}}: {sedista_ispis}'
+        print(ispis_reda)
 def print_exception(msg):
     print(msg.__class__.__name__, msg)
 
@@ -86,6 +99,27 @@ def prikaz_konkretnih_letova(letovi,svi_letovi):
         podaci.append(lista_leta)
     tabelarni_prikaz(podaci, formatiranje, 15)
 
+def prikaz_karata(karte,svi_letovi,svi_konkretni_letovi):
+    formatiranje = ['Broj karte',
+                    'Polaziste',
+                    'Odrediste',
+                    'Vreme poletanja',
+                    'Vreme sletanja',
+                    'Datum poletanja',
+                    'Datum Sletanja']
+    keys = ['broj_karte',
+            'sifra_polazisnog_aerodroma',
+            'sifra_odredisnog_aerodorma',
+            'vreme_poletanja',
+            'vreme_sletanja',
+            'datum_i_vreme_polaska',
+            'datum_i_vreme_dolaska']
+    podaci = []
+    for karta in karte:
+        karta_lista = karta_format_za_prikaz(karta, keys, svi_letovi, svi_konkretni_letovi)
+        podaci.append(karta_lista)
+    tabelarni_prikaz(podaci, formatiranje, 15)
+
 def dani_to_string(dani):
     dani_dict={
         konstante.PONEDELJAK: 'Pon',
@@ -112,6 +146,12 @@ def let_format_za_prikaz(let,keys):
     let_copy['sletanje_sutra']=bool_to_da_ne_dict[let_copy['sletanje_sutra']]
     lista_leta = dict_to_list(let_copy, keys)
     return lista_leta
+
+def list_to_dict(lista,key):
+    dict_ret={}
+    for d in lista:
+        dict_ret[d[key]]=d
+    return dict_ret
 
 def karta_format_za_prikaz(karta,keys,svi_letovi,svi_konkretni_letovi):
     karta_prikaz={}
