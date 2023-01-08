@@ -16,23 +16,6 @@ import re
 
 from datetime import datetime,timedelta
 
-def sacuvaj_zauzetost(putanja,sva_zauzetost):
-    with open(putanja,'w') as f:
-        for zauzetost in sva_zauzetost.values():
-            red=str(zauzetost)+'\n' #cuva red po red kao string
-            f.write(red)
-
-def ucitaj_zuzetost(putanja: str) -> dict:
-    with open(putanja, 'r') as f:
-        sva_zazuetost = f.readlines()
-    zauzetost_ret={}
-    for red in sva_zazuetost:
-        red=red.rstrip('\n')
-        if red == '': continue
-        zauzetost=literal_eval(red)# safe eval svakog reda
-        zauzetost_ret[zauzetost['sifra']]=zauzetost
-    return zauzetost_ret
-
 
 ulogovan=False
 aktivni_korisnik={}
@@ -44,7 +27,12 @@ svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
 svi_modeli=model_aviona.ucitaj_modele_aviona('./fajlovi/modeli.csv',',')
 
 
-
+def sacvuvaj_sve():
+    letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
+    konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
+    karte.sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
+    korisnici.sacuvaj_korisnike('./fajlovi/korisnici.csv',',',svi_korisnici)
+    model_aviona.sacuvaj_modele_aviona('./fajlovi/modeli.csv',',',svi_modeli)
 
 def prijava():
     cls()
@@ -52,10 +40,10 @@ def prijava():
     while True:
         try:
             linija()
-            #korisnicko_ime=unesi("Korisnicko ime")
-            #lozinka=unesi("Lozinka")
-            korisnicko_ime="Lija321"
-            lozinka='Lisica2003!'
+            korisnicko_ime=unesi("Korisnicko ime")
+            lozinka=unesi("Lozinka")
+            #korisnicko_ime="Lija321"
+            #lozinka='Lisica2003!'
             global aktivni_korisnik
             aktivni_korisnik=korisnici.login(svi_korisnici,korisnicko_ime,lozinka)
             global ulogovan
@@ -66,12 +54,7 @@ def prijava():
             print(msg)
 
 def izlazak():
-    letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
-    konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
-    karte.sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
-    korisnici.sacuvaj_korisnike('./fajlovi/korisnici.csv',',',svi_korisnici)
-    model_aviona.sacuvaj_modele_aviona('./fajlovi/modeli.csv',',',svi_modeli)
-
+    #sacvuvaj_sve()
     print("Doviđenja!!!")
     sys.exit()
 
@@ -100,6 +83,7 @@ def registracija():
             ulogovan=True
             global aktivni_korisnik
             aktivni_korisnik=svi_korisnici[korisnicko_ime]
+            sacvuvaj_sve()
             uspelo=True
         except KeyboardInterrupt:
             print('')
@@ -355,7 +339,7 @@ def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac):
             for putnik in putnici:
                 karta,sve_karte=karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_sledeceg_leta,
                                                              [putnik], slobodna_mesta, kupac)
-            karte.sacuvaj_karte(sve_karte, './fajlovi/karte.csv', ',')
+            sacvuvaj_sve()
             while True:
                 print("1. Kupi za povezujuci let 1\n x. Kraj kupovine ")
                 unos = unesi()
@@ -372,9 +356,19 @@ def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac):
 
 
 def check_in_korisnik(povezujuc=False,**kwargs):
+    global sve_karte
+    putnici_za_checkin=[]
+    dodate_karte=[]
+    karte_za_checkin=[]
+    if 'putnici' in kwargs.keys():
+        putnici_za_checkin=kwargs['putnici']
+    if 'karte' in kwargs.keys():
+        karte_za_checkin=kwargs['karte']
     cls()
     dozvoljene_karte=karte.pregled_nerealizovanaih_karata(aktivni_korisnik,list(sve_karte.values()))
     dozvoljene_karte=list_to_dict(dozvoljene_karte,'broj_karte')
+
+    #Odabir opcija za kartu
     while True and not povezujuc:
         print("1. Pretrazi karte 1\n2. Odaberi kartu kartu pomocu sifre 2\nx. Nazad x")
         unos = unesi('')
@@ -389,13 +383,19 @@ def check_in_korisnik(povezujuc=False,**kwargs):
             print("Odabrana nepostojuca opcija")
             continue
 
+
     while True:
+
+        #Odabir karte
         if not povezujuc:
             sifra=unesi("Sifra")
             if not sifra.isnumeric() or not int(sifra) in dozvoljene_karte.keys():
                 print("Sifra pogresno uneta")
                 continue
             sifra=int(sifra)
+            putnici_za_checkin.append(aktivni_korisnik)
+            dodate_karte.append(sve_karte[sifra])
+            karte_za_checkin.append(sve_karte[sifra])
         else:
             konkretan_let=kwargs['let']
             moguci_letovi=letovi.povezani_letovi(svi_letovi,svi_konkretni_letovi,konkretan_let)
@@ -407,6 +407,7 @@ def check_in_korisnik(povezujuc=False,**kwargs):
             karte_sifre=set(karte_sifre).intersection(set(letovi_sifre))
             karte_za_prikaz=[x for x in moguce_karte if x['sifra_konkretnog_leta'] in karte_sifre]
             prikaz_karata(karte_za_prikaz,svi_letovi,svi_konkretni_letovi)
+            karte_za_prikaz=list_to_dict(karte_za_prikaz,'broj_karte')
             while True:
                 sifra=unesi("Sifra")
                 if not sifra.isnumeric() or not int(sifra) in karte_za_prikaz.keys():
@@ -414,62 +415,108 @@ def check_in_korisnik(povezujuc=False,**kwargs):
                     continue
                 sifra=int(sifra)
                 break
+            dodate_karte.append(sve_karte[sifra])
+            karte_za_checkin.append(sve_karte[sifra])
 
-        sifra_leta=sve_karte[sifra]['sifra_konkretnog_leta']
-        karta=sve_karte[sifra]
-        konkretan_let=svi_konkretni_letovi[sifra_leta]
-        matrica=letovi.matrica_zauzetosti(konkretan_let)
-        model=svi_letovi[konkretan_let['broj_leta']]['model']
-        sedista=model['pozicije_sedista']
-        print('Sedista oznacena sa X su zauzeta')
-        print_sedista(matrica,sedista)
+        #Biranje mesta za svakog putnika  - prvi put je samo jedan
+        #I vrsenje check-in-a
+        for putnik_za_checkin,karta_za_checkin in zip(putnici_za_checkin,karte_za_checkin):
+            karta=karta_za_checkin
+            sifra_leta=karta['sifra_konkretnog_leta']
+            konkretan_let=svi_konkretni_letovi[sifra_leta]
+            print(f'Biranje mesta za {putnici_za_checkin["korisnicko_ime"]}')
+            matrica=letovi.matrica_zauzetosti(konkretan_let)
+            model=svi_letovi[konkretan_let['broj_leta']]['model']
+            sedista=model['pozicije_sedista']
+            print('Sedista oznacena sa X su zauzeta')
+            print_sedista(matrica,sedista)
 
-        while True:
-            red=unesi("Izaberi red")
-            if not red.isnumeric() or not int(red)-1 in range(len(matrica)):
-                print("Pogresno unet red")
-                continue
-            red=int(red)
-            pozicija=unesi("Koje sediste").upper()
-            if not pozicija in sedista:
-                print("Pogresno uneta pozicija")
-                continue
-            pozicija_int=sedista.index(pozicija)
-            if matrica[red-1   ][pozicija_int]:
-                print("Sediste zauzeto")
-                continue
+            while True:
+                red=unesi("Izaberi red")
+                if not red.isnumeric() or not 0<int(red)<=len(matrica):
+                    print("Pogresno unet red")
+                    continue
+                red=int(red)
+                pozicija=unesi("Koje sediste").upper()
+                if not pozicija in sedista:
+                    print("Pogresno uneta pozicija")
+                    continue
+                pozicija_int=sedista.index(pozicija)
+                if matrica[red-1][pozicija_int]:
+                    print("Sediste zauzeto")
+                    continue
+                break
+
+            korisnicki_za_proveri=karta['putnici'][0]
+            while True:
+                if korisnicki_za_proveri['pasos']=='':
+                    pasos=unesi("Pasos")
+                    if not re.match('[0-9]{9}',pasos):
+                        print("Pasos pogresno unet")
+                        continue
+                if korisnicki_za_proveri['drzavljanstvo']=='':
+                    drzavljantsvo=unesi("Drzavljanstvo").lower()
+                    if not re.match('^[a-z]+$',drzavljantsvo):
+                        print('Pogresno uneto drzaljvanstvo')
+                        continue
+                if korisnicki_za_proveri['pol']=='':
+                    pol=unesi('Pol')
+                    if not re.match('^[a-z]+$',pol): #DANAS SVE MOZE BITI POL
+                        print("Pol pogresno unet")
+                        continue
+                break
+
+            konkretan_let,karta=letovi.checkin(karta,svi_letovi,konkretan_let,red,pozicija)
+            sve_karte[karta['broj_karte']]=karta
+            #sacvuvaj_sve()
             break
-
-        korisnicki_za_proveri=karta['putnici'][0]
-        while True:
-            if korisnicki_za_proveri['pasos']=='':
-                pasos=unesi("Pasos")
-                if not re.match('[0-9]{9}',pasos):
-                    print("Pasos pogresno unet")
-                    continue
-            if korisnicki_za_proveri['drzavljanstvo']=='':
-                drzavljantsvo=unesi("Drzavljanstvo").lower()
-                if not re.match('^[a-z]+$',drzavljantsvo):
-                    print('Pogresno uneto drzaljvanstvo')
-                    continue
-            if korisnicki_za_proveri['pol']=='':
-                pol=unesi('Pol')
-                if not re.match('^[a-z]+$',pol): #DANAS SVE MOZE BITI POL
-                    print("Pol pogresno unet")
-                    continue
-            break
-
-        konkretan_let,karta=letovi.checkin(karta,svi_letovi,konkretan_let,red,pozicija)
-        break
 
     while True:
         print("1. Check-in saputnika 1\n2. Check-in za povezujuc let 2\nx. Nazad x")
         unos = unesi('')
         if unos == '1':
-            pregled_nerez_karata()
-            break
+            cls()
+            # sifra_leta
+            kupac = karta['kupac']
+            moguce_karte_za_checkin = []
+            for karta_iter in sve_karte.values():
+                if karta_iter['sifra_konkretnog_leta'] == sifra_leta and karta_iter['kupac'] == kupac and karta_iter[
+                    'status'] == konstante.STATUS_NEREALIZOVANA_KARTA:
+                    moguce_karte_za_checkin.append(karta_iter)
+
+            gotovo=False
+            while not gotovo:
+                moguce_karte_za_checkin = []
+                for karta_iter in sve_karte.values():
+                    if karta_iter['sifra_konkretnog_leta'] == sifra_leta and karta_iter['kupac'] == kupac and \
+                            karta_iter[
+                                'status'] == konstante.STATUS_NEREALIZOVANA_KARTA:
+                        moguce_karte_za_checkin.append(karta_iter)
+
+                if dodate_karte!=[]:
+                    for x in dodate_karte:
+                        moguce_karte_za_checkin.remove(x)
+
+                prikaz_karata(moguce_karte_za_checkin,svi_letovi,svi_konkretni_letovi,True)
+                moguce_karte_za_checkin = list_to_dict(moguce_karte_za_checkin, 'broj_karte')
+                if len(moguce_karte_za_checkin)>0:
+                    sifra = unesi("Broj karte saputnika (x za check-in dodatih saputnika)")
+                    if sifra.lower()=='x':
+                        gotovo=True
+                        break
+                    if not sifra.isnumeric() or not int(sifra) in moguce_karte_za_checkin.keys():
+                        print("Sifra pogresno uneta")
+                        continue
+                    sifra = int(sifra)
+                else: gotovo=True
+                if not gotovo:
+                    putnici_za_checkin.append(sve_karte[sifra]['putnici'][0])
+                    dodate_karte.append(sve_karte[sifra])
+
+                check_in_korisnik(povezujuc=False, let=konkretan_let, putnici=putnici_za_checkin)
+
         elif unos == '2':
-            check_in_korisnik(povezujuc=True,let=konkretan_let)
+            check_in_korisnik(povezujuc=True,let=konkretan_let,putnici=putnici_za_checkin,karte=dodate_karte)
         elif unos in ['x','X']:
             return
         else:
@@ -511,6 +558,7 @@ def registracija_novih_prodavaca_submeni():
             svi_korisnici = korisnici.kreiraj_korisnika(svi_korisnici, azuriraj, uloga, '',
                                                         korisnicko_ime, lozinka, ime, prezime)
 
+            sacvuvaj_sve()
             cls()
             return
 
@@ -606,8 +654,7 @@ def kreiranje_letova():
                     letovi.podesi_matricu_zauzetosti(svi_letovi,let)
 
 
-            letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
-            konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
+            sacvuvaj_sve()
 
             cls()
             return
@@ -705,8 +752,7 @@ def izmena_letova():
             svi_konkretni_letovi=copy(novi_svi_konkretni_letovi)
             svi_konkretni_letovi = konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, #Pravi nove
                                                                               svi_letovi[broj_leta])
-            letovi.sacuvaj_letove('./fajlovi/letovi.csv', ',', svi_letovi)
-            konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv', ',', svi_konkretni_letovi)
+            sacvuvaj_sve()
             cls()
             return
 

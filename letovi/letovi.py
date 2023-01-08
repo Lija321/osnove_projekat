@@ -335,7 +335,7 @@ def checkin(karta, svi_letovi: dict, konkretni_let: dict, red: int, pozicija: st
     if not konkretni_let['datum_i_vreme_polaska']-timedelta(hours=48) > datetime.now(): raise Exception("Check in prosao")
     if karta['status']==konstante.STATUS_REALIZOVANA_KARTA: raise Exception("Karta je vec check-in-ovana")
 
-    red_index=red
+    red_index=red-1
     pozicija_sedista=copy(svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista'])
     pozicija_index=pozicija_sedista.index(pozicija)
 
@@ -345,7 +345,7 @@ def checkin(karta, svi_letovi: dict, konkretni_let: dict, red: int, pozicija: st
 
     zauzetost[red_index][pozicija_index] = True
     karta['sediste']=str(pozicija)+str(red)
-    karta['staus']=konstante.STATUS_REALIZOVANA_KARTA
+    karta['status']=konstante.STATUS_REALIZOVANA_KARTA
 
     return konkretni_let,karta
 

@@ -99,7 +99,7 @@ def prikaz_konkretnih_letova(letovi,svi_letovi):
         podaci.append(lista_leta)
     tabelarni_prikaz(podaci, formatiranje, 15)
 
-def prikaz_karata(karte,svi_letovi,svi_konkretni_letovi):
+def prikaz_karata(karte,svi_letovi,svi_konkretni_letovi,checkin=False):
     formatiranje = ['Broj karte',
                     'Polaziste',
                     'Odrediste',
@@ -114,9 +114,13 @@ def prikaz_karata(karte,svi_letovi,svi_konkretni_letovi):
             'vreme_sletanja',
             'datum_i_vreme_polaska',
             'datum_i_vreme_dolaska']
+
+    if checkin:
+        formatiranje.insert(1,'Putnik')
+        keys.insert(1,'korisnicko_ime')
     podaci = []
     for karta in karte:
-        karta_lista = karta_format_za_prikaz(karta, keys, svi_letovi, svi_konkretni_letovi)
+        karta_lista = karta_format_za_prikaz(karta, keys, svi_letovi, svi_konkretni_letovi,checkin)
         podaci.append(karta_lista)
     tabelarni_prikaz(podaci, formatiranje, 15)
 
@@ -153,9 +157,10 @@ def list_to_dict(lista,key):
         dict_ret[d[key]]=d
     return dict_ret
 
-def karta_format_za_prikaz(karta,keys,svi_letovi,svi_konkretni_letovi):
+def karta_format_za_prikaz(karta,keys,svi_letovi,svi_konkretni_letovi,checkin):
     karta_prikaz={}
     karta_prikaz['broj_karte']=copy(karta['broj_karte'])
+    if checkin: karta_prikaz['korisnicko_ime']=karta['putnici'][0]['korisnicko_ime']
     konkretan_let = copy(svi_konkretni_letovi[karta['sifra_konkretnog_leta']])
     let=copy(svi_letovi[konkretan_let['broj_leta']])
     karta_prikaz['sifra_polazisnog_aerodroma']=let['sifra_polazisnog_aerodroma']

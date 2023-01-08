@@ -130,7 +130,8 @@ def sacuvaj_karte(sve_karte: dict, putanja: str, separator: str):
             for key in red_cuvanja:
                 # Cuva se u datom redosledu
                 if key in karta.keys():
-                    nov_red += str(karta[key]).replace(',', '~')
+                    dodatak = str(karta[key]).replace(',', '~')
+                    nov_red +=dodatak
                     nov_red += separator
             nov_red = nov_red[:-1]  # oduzima  se bespotrebni separator
             nov_red += '\n'
