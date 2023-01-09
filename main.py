@@ -844,8 +844,6 @@ def ulogovan_meni_korisnik():
 
         if user_input in ulogovan_meni_korisnik_dict:
             ulogovan_meni_korisnik_dict[user_input]()
-            if user_input == 'x':
-                return
             return
 
         else:
@@ -881,8 +879,6 @@ def ulogovan_meni_admin():
 
         if user_input in ulogovan_meni_korisnik_dict:
             ulogovan_meni_korisnik_dict[user_input]()
-            if user_input == 'x':
-                return
             return
 
         else:
@@ -909,17 +905,15 @@ def ulogovan_meni_prodavac():
         linija()
         print('Opcije:')
         print(
-            '1. Pretraga prodatih karata 1\n2. Registracija novih prodavaca 2\n3. Kreiranje letova 3\n4. Izmena letova 4')
-        print('5. Brisanje karata 5\n6. Izvestavanje 6\n7. Pregled nerealizovanih letova 7')
+            '1. Pretraga prodatih karata 1\n2. Prodaja karata 2\n3. Check-in 3\n4. Izmena karata 4')
+        print('5. Brisanje karata 5\n6. Pregled nerealizovanih letova 6')
         print(
-            '8. Pretraga letova 8\n9. Trazenje 10 najjeftinijh letova 9\n10. Fleksibilni polasc 10\n11. Odjava 11\nx. Izlaz x')
+            '7. Pretraga letova 7\n8. Trazenje 10 najjeftinijh letova 8\n9. Fleksibilni polasc 9\n10. Odjava 10\nx. Izlaz x')
 
         user_input = str(input(">>"))
 
         if user_input in ulogovan_meni_korisnik_dict:
             ulogovan_meni_korisnik_dict[user_input]()
-            if user_input == 'x':
-                return
             return
 
         else:

@@ -200,9 +200,29 @@ Kriterijum se ne primenjuje ako nije prosleđen.
 def pretraga_prodatih_karata(sve_karte: dict, svi_letovi:dict, svi_konkretni_letovi:dict, polaziste: str="",
                              odrediste: str="", datum_polaska: datetime="", datum_dolaska: str="",
                              korisnicko_ime_putnika: str="")->list:
-    pass
+    polaziste_prazno=polaziste==''
+    odrediste_prazno=odrediste==''
+    datum_dolaska_prazan=datum_dolaska==''
+    datum_polaska_prazan=datum_polaska==''
+    korisnicko_ime_putnika_prazno=korisnicko_ime_putnika==''
 
+    karte_ret=[]
+    for karta in sve_karte.values():
+        konkretan_let=svi_konkretni_letovi[karta['sifra_konkretnog_leta']]
+        let=svi_letovi[konkretan_let['broj_leta']]
 
+        if polaziste_prazno: polaziste=let['sifra_polazisnog_aerodroma']
+        if odrediste_prazno: odrediste=let['sifra_odredisnog_aerodroma']
+        if datum_polaska_prazan: datum_polaska=konkretan_let['datum_i_vreme_polaska']
+        if datum_dolaska_prazan: datum_dolaska=konkretan_let['datum_i_vreme_dolaska']
+        if korisnicko_ime_putnika_prazno: korisnicko_ime_putnika=karta['putnici'][0]['korisnicko_ime']
 
+        if polaziste==let['sifra_polazisnog_aerodroma'] and \
+            odrediste==let['sifra_odredisnog_aerodroma'] and \
+            datum_polaska==konkretan_let['datum_i_vreme_polaska'] and \
+            datum_dolaska==konkretan_let['datum_i_vreme_dolaska'] and \
+            korisnicko_ime_putnika==karta['putnici'][0]['korisnicko_ime']:
+            karte_ret.append(copy(karta))
+    return karte_ret
 if __name__ == '__main__':
     pass
