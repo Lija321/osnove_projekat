@@ -4,8 +4,12 @@ def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: datetime)->lis
     izvestaj_ret=[]
     #Prolazak kroz karte, ako je trazeni dan isti kao na karti -> dodaj tu kartu
     for karta in sve_karte.values():
-        if karta['datum_prodaje']==dan:
-            izvestaj_ret.append(karta)
+        if 'datum_prodaje' in karta.keys():
+            if isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan:
+                izvestaj_ret.append(karta)
+            elif isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan:
+                izvestaj_ret.append(karta)
+
     return izvestaj_ret
 def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: date):
     izvestaj_ret = []
@@ -21,8 +25,12 @@ def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: dat
     izvestaj_ret = []
     # Prolazak kroz karte, ako je trazeni dan isti kao na karti i prodavac isti -> dodaj tu kartu
     for karta in sve_karte.values():
-        if karta['datum_prodaje'] == dan and karta['prodavac']==prodavac:
-            izvestaj_ret.append(karta)
+        if karta['prodavac']==prodavac:
+            if 'datum_prodaje' in karta.keys():
+                if isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan:
+                    izvestaj_ret.append(karta)
+                elif isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan:
+                    izvestaj_ret.append(karta)
     return izvestaj_ret
 
 def izvestaj_ubc_prodatih_karata_za_dan_prodaje(
@@ -35,7 +43,8 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje(
     cena=0
     # Prolazak kroz karte, ako je trazeni dan isti kao na karti -> dodaj na akumulatore trazene parametre
     for karta in sve_karte.values():
-        if karta['datum_prodaje']==dan:
+        if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
+                (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan):
             broj+=1
             sifra = karta['sifra_konkretnog_leta']
             konk_let = svi_konkretni_letovi[sifra]
@@ -55,7 +64,8 @@ def izvestaj_ubc_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_l
         sifra = karta['sifra_konkretnog_leta']
         let = svi_konkretni_letovi[sifra]
         dan_provere=let['datum_i_vreme_polaska'].date() #bitan je dan polaska ne vreme polasa; .date() uklanja vreme
-        dan_bez_sati=dan.date()
+        if isinstance(dan,datetime): dan_bez_sati=dan.date()
+        else: dan_bez_sati=dan
         if dan_provere== dan_bez_sati:
             broj += 1
             sifra = karta['sifra_konkretnog_leta']
@@ -70,7 +80,9 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, svi_
     cena = 0
     for karta in sve_karte.values():
         # Prolazak kroz karte, ako je trazeni dan isti kao na karti i prodavac -> dodaj na akumulatore trazene parametre
-        if karta['datum_prodaje'] == dan and karta['prodavac']==prodavac:
+        if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
+                (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan) \
+                and karta['prodavac']==prodavac:
             broj += 1
             sifra = karta['sifra_konkretnog_leta']
             konk_let = svi_konkretni_letovi[sifra]
@@ -91,7 +103,11 @@ def izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte: dict, svi_konk
     ubc={}
     for karta in sve_karte.values():
         #"%d.%m.%Y."
-        prosledjen_datum_datetime=datetime.strptime(karta['datum_prodaje'], "%d.%m.%Y.") #iz nekog razloga se ovako prosledjuje datum
+        if not 'datum_prodaje' in karta.keys(): continue
+        if isinstance(karta['datum_prodaje'] ,str):
+            prosledjen_datum_datetime=datetime.strptime(karta['datum_prodaje'], "%d.%m.%Y.") #iz nekog razloga se ovako prosledjuje datum
+        else: prosledjen_datum_datetime=karta['datum_prodaje']
+
         if prosledjen_datum_datetime<datum_granica: continue #ako je pre granice preskoci
         sifra = karta['sifra_konkretnog_leta']
         konk_let = svi_konkretni_letovi[sifra]
@@ -99,6 +115,7 @@ def izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte: dict, svi_konk
         let = svi_letovi[broj_leta]
         cena = let['cena']
         prodavac=karta['prodavac']
+        if isinstance(prodavac ,dict): prodavac=prodavac['korisnicko_ime']
         if prodavac in ubc.keys(): #Ako prodavac nije predjen prvi put dodaj na akumulatore
             ubc[prodavac]['broj']+=1
             ubc[prodavac]['cena']+=cena
