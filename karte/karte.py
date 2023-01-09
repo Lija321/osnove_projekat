@@ -7,7 +7,7 @@ from datetime import datetime
 import csv
 from ast import literal_eval
 from copy import copy
-
+from letovi import letovi
 
 def sledeci_broj_karte_set(sve_karte:dict):
     ids=sve_karte.keys()
@@ -187,7 +187,10 @@ def izmena_karte(
     if not nov_datum_polaska is None: #Pitaj ovo
         pass
     if not sediste is None:
-        pass
+        karta_za_menjanje['sediste']=sediste
+
+
+
 
     sve_karte[broj_karte]=karta_za_menjanje
     return sve_karte
