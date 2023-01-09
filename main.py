@@ -42,10 +42,10 @@ def prijava():
     while True:
         try:
             linija()
-            #korisnicko_ime=unesi("Korisnicko ime")
-            #lozinka=unesi("Lozinka")
-            korisnicko_ime="Lija321"
-            lozinka='Lisica2003!'
+            korisnicko_ime=unesi("Korisnicko ime")
+            lozinka=unesi("Lozinka")
+            #korisnicko_ime="Lija321"
+            #lozinka='Lisica2003!'
             global aktivni_korisnik
             aktivni_korisnik=korisnici.login(svi_korisnici,korisnicko_ime,lozinka)
             global ulogovan
@@ -97,7 +97,7 @@ def registracija():
         except Exception as msg:
             print(msg)
             continue
-    return
+    return True
 
 def pregled_nerez_letova():
     global svi_letovi
@@ -108,7 +108,6 @@ def pretraga_letova_submeni(kupovina=False):
     filteri_unos={
         '1': "",
         '2': "",
-        '3': "",
         '3': "",
         '4': "",
         '5': "",
@@ -126,7 +125,7 @@ def pretraga_letova_submeni(kupovina=False):
     ]
     while True:
         try:
-            print("Ctrl-C za nov pokusaj")
+            print("\nCtrl-C za nov pokusaj")
             print('Odaberite filtere:')
             print('1. Polaziste 1\n2. Odrediste 2\n3. Datum polaska 3\n4. Datum dolaska 4')
             print('5. Vreme poletanja 5\n6. Vreme sletanja 6\n7. Prevoznik 7\nx. Nazad x')
@@ -233,6 +232,7 @@ def fleksibilni_polasci_submeni():
             print(msg)
 def kupovina_karata_submeni():
     cls()
+    prodaja=aktivni_korisnik['uloga']==konstante.ULOGA_PRODAVAC
     while True:
         print("1. Pretrazi letove 1\n2. Kupi kartu pomocu sifre 2\nx. Nazad x")
         unos=unesi('')
@@ -240,7 +240,7 @@ def kupovina_karata_submeni():
             pretraga_letova_submeni(kupovina=True)
             continue
         elif unos=='2':
-            kupovina_karte()
+            kupovina_karte(prodaja)
         elif unos=='x':
             return
         else:
@@ -259,7 +259,7 @@ def ima_li_slobodnih(sifra_leta):
         raise Exception('Nema slobodnih mesta')
     print(f'Broj slobodnih mesta >> {broj_slobodnih_mesta}')
 
-def kupovina_karte():
+def kupovina_karte(prodaja=False):
     global sve_karte
     while True:
         print('Ctrl-C za nazad')
@@ -274,15 +274,18 @@ def kupovina_karte():
                 print("Nepostojeca sifra")
             ima_li_slobodnih(sifra_leta)
 
-            kupuje_za_sebe=True
-            while True:
-                kupuje_za_sebe=unesi("Da li kupujete kartu za sebe? (da/ne)").lower()
-                if not kupuje_za_sebe in da_ne_dict.keys():
-                    print("Neispravan unos")
-                    continue
-                kupuje_za_sebe=da_ne_dict[kupuje_za_sebe]
-                break
 
+            if prodaja==False:
+                kupuje_za_sebe=True
+                while True:
+                    kupuje_za_sebe=unesi("Da li kupujete kartu za sebe? (da/ne)").lower()
+                    if not kupuje_za_sebe in da_ne_dict.keys():
+                        print("Neispravan unos")
+                        continue
+                    kupuje_za_sebe=da_ne_dict[kupuje_za_sebe]
+                    break
+            else:
+                kupuje_za_sebe=False
             #prvi_prolaz=True
             putnici = []
             while True:
@@ -295,6 +298,22 @@ def kupovina_karte():
                                          [putnici[-1]],slobodna_mesta,kupac) #putnici[-1] poslednji dodat
                     kupuje_za_sebe=False
                 else:
+                    if prodaja:
+                        while True:
+                            while True:
+                                potrebna_registracija=unesi("Da li je kupac registrovan? (da/ne)").lower()
+                                if potrebna_registracija in da_ne_dict.keys():
+                                    potrebna_registracija=da_ne_dict[potrebna_registracija]
+                                    break
+                                print("Greska u unosu")
+                            if not potrebna_registracija:
+                                uspelo=registracija()
+                                if uspelo:
+                                    break
+                                print("Doslo je do greske")
+                                continue
+                            break
+
                     while True:
                         ime=unesi("Korisnicko ime putnika")
                         if not ime in svi_korisnici.keys():
@@ -304,17 +323,23 @@ def kupovina_karte():
                     putnik=svi_korisnici[ime]
                     putnici.append(putnik)
                     slobodna_mesta = svi_konkretni_letovi[sifra_leta]['zauzetost']
-                    karta,sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
-                                                     [putnici[-1]], slobodna_mesta, kupac)  #putnici[-1] poslednji dodat
+                    if not prodaja:
+                        karta,sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
+                                                         [putnici[-1]], slobodna_mesta, kupac)  #putnici[-1] poslednji dodat
+                        sacuvaj_sve()
+                    else:
+                        karta, sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
+                                                                [putnici[-1]], slobodna_mesta, putnici[0],prodavac=aktivni_korisnik,datum_prodaje=datetime.now())  # putnici[-1] poslednji dodat
+                        sacuvaj_sve()
                     #prvi_prolaz=False
 
-                karte.sacuvaj_karte(sve_karte,'./fajlovi/karte.csv',',')
+                sacuvaj_sve()
                 print("1. Dodaj putnike 1\n2. Kupi za povezujuci let 2\n x. Kraj kupovine ")
                 unos=unesi()
                 if unos=='1':
                     continue
                 elif unos=='2':
-                    kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac)
+                    kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac,prodaja)
                     return
                 elif unos=='x':
                     return
@@ -324,7 +349,7 @@ def kupovina_karte():
         except Exception as msg:
             print_exception(msg)
 
-def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac):
+def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac,prodaja):
     global sve_karte
     global svi_konkretni_letovi
     while True:
@@ -333,20 +358,30 @@ def kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac):
             moguci_letovi=letovi.povezani_letovi(svi_letovi,
                                                  svi_konkretni_letovi,
                                                  svi_konkretni_letovi[sifra_leta])
+            if moguci_letovi==[]:
+                print("Nema vise povezanih letova")
+                return
             prikaz_konkretnih_letova(moguci_letovi,svi_letovi)
             sifra_sledeceg_leta=unesi("Sifra sledeceg leta")
             if sifra_sledeceg_leta.isnumeric(): sifra_sledeceg_leta=int(sifra_sledeceg_leta)
             else: raise Exception("Sifra leta pogresno uneta")
             slobodna_mesta=svi_konkretni_letovi[sifra_sledeceg_leta]['zauzetost']
             for putnik in putnici:
-                karta,sve_karte=karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_sledeceg_leta,
-                                                             [putnik], slobodna_mesta, kupac)
-            sacuvaj_sve()
+                if not prodaja:
+                    karta,sve_karte=karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_sledeceg_leta,
+                                                         [putnik], slobodna_mesta, kupac)
+                    sacuvaj_sve()
+                else:
+                    karta, sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_sledeceg_leta,
+                                                            putnik, slobodna_mesta, putnici[0],
+                                                            prodavac=aktivni_korisnik,
+                                                            datum_prodaje=datetime.now())  # putnici[-1] poslednji dodat
+                    sacuvaj_sve()
             while True:
                 print("1. Kupi za povezujuci let 1\n x. Kraj kupovine ")
                 unos = unesi()
                 if unos == '1':
-                    kupovin_karte_za_povezan_let(putnici, sifra_sledeceg_leta, kupac)
+                    kupovin_karte_za_povezan_let(putnici, sifra_sledeceg_leta, kupac,prodaja)
                     return
                 elif unos == 'x':
                     return
@@ -544,8 +579,62 @@ def odjava():
     cls()
     return
 
-def pretraga_prodatih_karata_submeni():
-    pass
+def pretraga_prodatih_karata_submeni(prodaja=False):
+    filteri_unos = {
+        '1': "",
+        '2': "",
+        '3': "",
+        '4': "",
+        '5': ""
+    }
+    filteri_poruka = [
+        'Polaziste',
+        'Odrediste',
+        'Datum polaska (dd.mm.yyyy)',
+        'Datum dolaska (dd.mm.yyyy)',
+        'Korisnicko ime putnika'
+    ]
+    while True:
+        try:
+            print("\nCtrl-C za nov pokusaj")
+            print('Odaberite filtere:')
+            print('1. Polaziste 1\n2. Odrediste 2\n3. Datum polaska 3\n4. Datum dolaska 4')
+            print('5. Korisnicko ime putnika 5\nx. Nazad x')
+            odabrani_filteri = unesi("Odaberite filtere npr[157]")
+            if 'x' in odabrani_filteri: return
+            odabrani_filteri = remove_duplicate(odabrani_filteri)
+
+            for x in odabrani_filteri:
+                if not x in filteri_unos.keys(): raise Exception(f'Odabran nevalidan filter {x}')
+                filteri_unos[x] = unesi(filteri_poruka[int(x) - 1])
+
+            if not filteri_unos['3'] == '':
+                try:
+                    filteri_unos['3'] = datetime.strptime(filteri_unos['3'], '%d.%m.%Y')
+                except ValueError:
+                    raise Exception("Datum pocetka operativnosti pogresno unet")
+
+            if not filteri_unos['4'] == '':
+                try:
+                    filteri_unos['4'] = datetime.strptime(filteri_unos['4'], '%d.%m.%Y')
+                except ValueError:
+                    raise Exception("Datum pocetka operativnosti pogresno unet")
+
+            pretrazene_karte = karte.pretraga_prodatih_karata(sve_karte, svi_letovi, svi_konkretni_letovi,
+                                                       filteri_unos['1'].upper(),
+                                                       filteri_unos['2'].upper(),
+                                                       filteri_unos['3'],
+                                                       filteri_unos['4'],
+                                                       filteri_unos['5'])
+
+            prikaz_karata(pretrazene_karte,svi_letovi,svi_konkretni_letovi,True)
+
+            if prodaja: return
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as msg:
+            print(msg)
 
 def registracija_novih_prodavaca_submeni():
     cls()
@@ -774,13 +863,67 @@ def izmena_letova():
             print(msg)
     return
 
-def brisanje_karata():
-    pass
+def brisanje_karata_admin():
+    try:
+        global sve_karte
+        cls()
+        while True:
+            karte_za_brisanje=[x for x in sve_karte.values() if x['obrisana']==True]
+            prikaz_karata(karte_za_brisanje,svi_letovi,svi_konkretni_letovi,True)
+            karte_za_brisanje=list_to_dict(karte_za_brisanje,'broj_karte')
+
+            nazad = False
+            while True:
+                karta_za_brisanje = unesi("Sifra karte za brisanje (x za nazad)")
+                if karta_za_brisanje.lower() == 'x':
+                    nazad = True
+                    break
+                if not karta_za_brisanje.isnumeric() or not int(karta_za_brisanje) in sve_karte.keys():
+                    print("Greska u unosu karte")
+                    continue
+                break
+            if nazad: return
+            karta_za_brisanje = int(karta_za_brisanje)
+            sve_karte = karte.brisanje_karte(aktivni_korisnik, sve_karte, karta_za_brisanje)
+            sacuvaj_sve()
+    except KeyboardInterrupt:
+        return
+    except Exception as msg:
+        print_exception(msg)
+
+def brisanje_karata_prodavac():
+    global sve_karte
+    cls()
+    while True:
+        print("1. Pretrazi karte 1\n2. Obrisi kartu pomocu sifre 2\nx. Nazad x")
+        unos = unesi('')
+        if unos == '1':
+            pretraga_prodatih_karata_submeni(prodaja=True)
+            continue
+        elif unos == '2':
+            nazad=False
+            while True:
+                karta_za_brisanje=unesi("Sifra karte za brisanje (x za nazad)")
+                if karta_za_brisanje.lower()=='x':
+                    nazad=True
+                    break
+                if not karta_za_brisanje.isnumeric() or not int(karta_za_brisanje) in sve_karte.keys():
+                    print("Greska u unosu karte")
+                    continue
+                break
+            if nazad: continue
+            karta_za_brisanje=int(karta_za_brisanje)
+            sve_karte=karte.brisanje_karte(aktivni_korisnik,sve_karte,karta_za_brisanje)
+            sacuvaj_sve()
+
+        elif unos == 'x':
+            return
+        else:
+            print("Odabrana nepostojuca opcija")
+            continue
+        return
 
 def izvestavanje_submeni():
-    pass
-
-def prodaj_karata_submeni():
     pass
 
 def check_in_prodavac():
@@ -855,7 +998,7 @@ def ulogovan_meni_admin():
         '2': registracija_novih_prodavaca_submeni,
         '3': kreiranje_letova,
         '4': izmena_letova,
-        '5': brisanje_karata,
+        '5': brisanje_karata_admin,
         '6': izvestavanje_submeni,
         '7': pregled_nerez_letova,
         '8': pretraga_letova_submeni,
@@ -886,10 +1029,10 @@ def ulogovan_meni_admin():
 def ulogovan_meni_prodavac():
     ulogovan_meni_korisnik_dict = {
         '1': pretraga_prodatih_karata_submeni,
-        '2': prodaj_karata_submeni,
+        '2': kupovina_karata_submeni,
         '3': check_in_prodavac,
         '4': izmena_karte,
-        '5': brisanje_karata,
+        '5': brisanje_karata_prodavac,
         '6': pregled_nerez_letova,
         '7': pretraga_letova_submeni,
         '8': trazenje_10_najjeftinijih_letova_submeni,

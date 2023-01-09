@@ -212,13 +212,13 @@ def pretraga_prodatih_karata(sve_karte: dict, svi_letovi:dict, svi_konkretni_let
         let=svi_letovi[konkretan_let['broj_leta']]
 
         if polaziste_prazno: polaziste=let['sifra_polazisnog_aerodroma']
-        if odrediste_prazno: odrediste=let['sifra_odredisnog_aerodroma']
+        if odrediste_prazno: odrediste=let['sifra_odredisnog_aerodorma']
         if datum_polaska_prazan: datum_polaska=konkretan_let['datum_i_vreme_polaska']
         if datum_dolaska_prazan: datum_dolaska=konkretan_let['datum_i_vreme_dolaska']
         if korisnicko_ime_putnika_prazno: korisnicko_ime_putnika=karta['putnici'][0]['korisnicko_ime']
 
         if polaziste==let['sifra_polazisnog_aerodroma'] and \
-            odrediste==let['sifra_odredisnog_aerodroma'] and \
+            odrediste==let['sifra_odredisnog_aerodorma'] and \
             datum_polaska==konkretan_let['datum_i_vreme_polaska'] and \
             datum_dolaska==konkretan_let['datum_i_vreme_dolaska'] and \
             korisnicko_ime_putnika==karta['putnici'][0]['korisnicko_ime']:
