@@ -4,7 +4,7 @@ import copy
 
 from common import konstante
 from izvestaji import izvestaji
-from test.test_utils import rand_datetime, rand_str
+from test.test_utils import rand_datetime, rand_str, rand_time_str
 import random
 import string
 from datetime import date, timedelta
@@ -13,37 +13,36 @@ from datetime import date, timedelta
 class IzvestajiTest(unittest.TestCase):
     def setUp(self):
         self.modeli_aviona = {
-            123: {"id": 123, "naziv": "Boeing747", "broj_redova": 44, "pozicije_sedista": "A"},
-            124: {"id": 124, "naziv": "Boeing748", "broj_redova": 45, "pozicije_sedista": "B"}
+            123: {"id": 123, "naziv": "Boeing747", "broj_redova": 44, "pozicija_sedista": "A"},
+            124: {"id": 124, "naziv": "Boeing748", "broj_redova": 45, "pozicija_sedista": "B"}
         }
         self.pun_let = {
-            "broj_leta": "aa33",
-            "sifra_polazisnog_aerodroma": "BJS",
-            # pitanje, da li je u redu da stavim ovako nazive, ili nekako drugacije?
-            "sifra_odredisnog_aerodorma": "LON",
-            "vreme_poletanja": "13:34",  # pitanje, da li je u redu da stavim ovako vreme, ili nekako drugacije?
-            "vreme_sletanja": "14:50",
+            "broj_leta": rand_str(4),
+            "sifra_polazisnog_aerodroma": rand_str(3),
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "vreme_poletanja": rand_time_str(),
+            "vreme_sletanja": rand_time_str(),
             "sletanje_sutra": False,
-            "prevoznik": "prevoznik1",
+            "prevoznik": rand_str(10),
             "dani": [konstante.CETVRTAK, konstante.NEDELJA],
             "model": self.modeli_aviona[123],
             "cena": 200
         }
 
         self.konkretan_let = {
-            "sifra_konkretnog_leta": 1234,
-            "broj_leta":"aa33",
+            "sifra": 1234,
+            "broj_leta": self.pun_let["broj_leta"],
             "datum_i_vreme_polaska" : rand_datetime(),
             "datum_dolaska": rand_datetime()
         }
 
         self.puna_karta = {
             "broj_karte": 1,
-            "sifra_leta": "aa33", #sifra konkretnog leta
-            "sifra_konkretnog_leta":1234,
+            "sifra_konkretnog_leta": self.konkretan_let["sifra"], #sifra konkretnog leta
+            "sifra":1234,
             "kupac": ''.join(random.sample(string.ascii_lowercase, 6)),
             "prodavac": ''.join(random.sample(string.ascii_lowercase, 7)),
-            "sediste": "b3",
+            "sifra_sedista": "b3",
             "datum_prodaje" : rand_datetime(),
             "obrisana": False
         }
@@ -95,39 +94,39 @@ class IzvestajiTest(unittest.TestCase):
     def test_izvestaj_prodatih_karata_za_dan_polaska(self):
         dan_polaska = rand_datetime()
         konkretni_let_na_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": dan_polaska
         }
         konkretni_let_drugi_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime()
         }
         svi_konkretni_letovi = {
-            konkretni_let_na_dan["sifra_konkretnog_leta"]: konkretni_let_na_dan,
-            konkretni_let_drugi_dan["sifra_konkretnog_leta"]: konkretni_let_drugi_dan
+            konkretni_let_na_dan["sifra"]: konkretni_let_na_dan,
+            konkretni_let_drugi_dan["sifra"]: konkretni_let_drugi_dan
         }
         karte_na_dan_polaska = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_polaska,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_polaska,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             }
         ]
         karte_na_drugi_dan_polaska = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             }
         ]
         sve_karte = []
@@ -162,8 +161,10 @@ class IzvestajiTest(unittest.TestCase):
              self.puna_karta["datum_prodaje"],
             self.puna_karta["prodavac"]
         )
+        referentne_karte = [self.puna_karta]
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
         self.assertEqual(1, len(sve_karte), msg="Nema karata")
+        self.assertEqual(referentne_karte, sve_karte, msg="Sve karte su tu")
 
     def test_izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca_neuspesan(self):
         karta1 = copy.deepcopy(self.puna_karta)
@@ -200,41 +201,41 @@ class IzvestajiTest(unittest.TestCase):
             nekorisceni_let["broj_leta"]: nekorisceni_let
         }
         konkretni_let_na_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime(),
             "broj_leta": korisceni_let["broj_leta"]
         }
         konkretni_let_drugi_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime(),
             "broj_leta": nekorisceni_let["broj_leta"]
         }
         svi_konkretni_letovi = {
-            konkretni_let_na_dan["sifra_konkretnog_leta"]: konkretni_let_na_dan,
-            konkretni_let_drugi_dan["sifra_konkretnog_leta"]: konkretni_let_drugi_dan
+            konkretni_let_na_dan["sifra"]: konkretni_let_na_dan,
+            konkretni_let_drugi_dan["sifra"]: konkretni_let_drugi_dan
         }
         karte_prodate_na_dan = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_prodaje,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_prodaje,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             }
         ]
         karte_prodate_na_drugi_dan = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             }
         ]
         sve_karte = []
@@ -272,23 +273,23 @@ class IzvestajiTest(unittest.TestCase):
             nekorisceni_let["broj_leta"]: nekorisceni_let
         }
         konkretni_let_na_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime(),
             "broj_leta": korisceni_let["broj_leta"]
         }
         konkretni_let_drugi_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime(),
             "broj_leta": nekorisceni_let["broj_leta"]
         }
         svi_konkretni_letovi = {
-            konkretni_let_na_dan["sifra_konkretnog_leta"]: konkretni_let_na_dan,
-            konkretni_let_drugi_dan["sifra_konkretnog_leta"]: konkretni_let_drugi_dan
+            konkretni_let_na_dan["sifra"]: konkretni_let_na_dan,
+            konkretni_let_drugi_dan["sifra"]: konkretni_let_drugi_dan
         }
 
-        karta1 = copy.deepcopy(self.puna_karta) 
+        karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = 2
-        karta1["datum_i_vreme_polaska"] =  dan_prodaje
+        karta1["datum_i_vreme_polaska"] = rand_datetime().date()
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_i_vreme_polaska"] = karta1["datum_i_vreme_polaska"]
         karta2["broj_karte"] = 3
@@ -303,8 +304,8 @@ class IzvestajiTest(unittest.TestCase):
         )
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
         self.assertEqual(2, len(rezultat), msg="")
-        self.assertEqual(0, rezultat[0], msg="")
-        self.assertEqual(0, rezultat[0], msg="")
+        self.assertEqual(0, rezultat[0], msg="")# suma
+        self.assertEqual(0, rezultat[1], msg="")#broj
 
     def test_izvestaj_ubc_prodatih_karata_za_dan_polaska(self):
         dan_polaska = rand_datetime()
@@ -321,41 +322,41 @@ class IzvestajiTest(unittest.TestCase):
             nekorisceni_let["broj_leta"]: nekorisceni_let
         }
         konkretni_let_na_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": dan_polaska,
             "broj_leta": korisceni_let["broj_leta"]
         }
         konkretni_let_drugi_dan = {
-            "sifra_konkretnog_leta": rand_str(2) + str(random.randint(10, 99)),
+            "sifra": rand_str(2) + str(random.randint(10, 99)),
             "datum_i_vreme_polaska": rand_datetime(),
             "broj_leta": korisceni_let["broj_leta"]
         }
         svi_konkretni_letovi = {
-            konkretni_let_na_dan["sifra_konkretnog_leta"]: konkretni_let_na_dan,
-            konkretni_let_drugi_dan["sifra_konkretnog_leta"]: konkretni_let_drugi_dan
+            konkretni_let_na_dan["sifra"]: konkretni_let_na_dan,
+            konkretni_let_drugi_dan["sifra"]: konkretni_let_drugi_dan
         }
         karte_na_dan_polaska = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_polaska,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": dan_polaska,
-                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_na_dan["sifra"]
             }
         ]
         karte_na_drugi_dan_polaska = [
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             },
             {
                 "broj_karte": random.randint(1, 10000),
                 "datum_prodaje": rand_datetime().date(),
-                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra_konkretnog_leta"]
+                "sifra_konkretnog_leta": konkretni_let_drugi_dan["sifra"]
             }
         ]
         sve_karte = []
@@ -372,14 +373,14 @@ class IzvestajiTest(unittest.TestCase):
         )
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
         self.assertEqual(2, len(rezultat), msg="")
-        self.assertNotEqual(0, rezultat[0], msg="")
-        self.assertNotEqual(0, rezultat[0], msg="")
+        self.assertEqual(2, rezultat[0], msg="")
+        self.assertEqual(korisceni_let["cena"]*2, rezultat[1], msg="")
 
-    def test_izvestaj_ubc_prodatih_karata_za_dan_polaska_neuspesan(self): #TODO
+    def test_izvestaj_ubc_prodatih_karata_za_dan_polaska_neuspesan(self):
         datum = rand_datetime()
         datum2 = datum + timedelta(days=3)
         konkretan_let1 = copy.deepcopy(self.konkretan_let)
-        konkretan_let1["sifra_konkretnog_leta"] = 1235
+        konkretan_let1["sifra"] = 1235
         konkretan_let1["datum_i_vreme_polaska"] = datum
 
         karta1 = copy.deepcopy(self.puna_karta)
@@ -390,8 +391,8 @@ class IzvestajiTest(unittest.TestCase):
         karta2["sifra_konkretnogg_leta"] = 1235
 
         svi_konkretni_letovi = {
-            self.konkretan_let["sifra_konkretnog_leta"]: self.konkretan_let,
-            konkretan_let1["sifra_konkretnog_leta"]: konkretan_let1
+            self.konkretan_let["sifra"]: self.konkretan_let,
+            konkretan_let1["sifra"]: konkretan_let1
         }
 
         korisceni_let = {
@@ -418,7 +419,7 @@ class IzvestajiTest(unittest.TestCase):
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
         self.assertEqual(2, len(rezultat), msg="")
         self.assertEqual(0, rezultat[0], msg="")
-        self.assertEqual(0, rezultat[0], msg="")
+        self.assertEqual(0, rezultat[1], msg="")
 
 
     def test_izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(self):
@@ -431,22 +432,23 @@ class IzvestajiTest(unittest.TestCase):
         karta2["datum_prodaje"] = datum
         karta2["prodavac"] = karta1["prodavac"]
         karta2["broj_karte"] = 3
-
+        ukupna_cena = self.pun_let["cena"] *2
         sve_karte = {self.puna_karta["broj_karte"]: self.puna_karta,
              karta1["broj_karte"]: karta1,
              karta2["broj_karte"]: karta2}
 
         rezultat = izvestaji.izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(
             sve_karte,
-            {self.konkretan_let["sifra_konkretnog_leta"]:self.konkretan_let},
+            {self.konkretan_let["sifra"]:self.konkretan_let},
             {self.pun_let["broj_leta"]: self.pun_let},
             datum,
             karta1["prodavac"]
         )
+
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
         self.assertEqual(2, len(rezultat), msg="")
-        self.assertNotEqual(0, rezultat[0], msg="")
-        self.assertNotEqual(0, rezultat[1], msg="")
+        self.assertEqual(2, rezultat[0], msg="")
+        self.assertEqual(ukupna_cena, rezultat[1], msg="")
 
 
     def test_izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(self):
@@ -454,7 +456,8 @@ class IzvestajiTest(unittest.TestCase):
         karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = 2
         karta1["datum_prodaje"] = today.strftime("%d.%m.%Y.")
-        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7))
+        karta1["prodavac"] = rand_str(5),
+        karta1["prodavac"] = karta1["prodavac"][0]
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_prodaje"] = today.strftime("%d.%m.%Y.")
         karta2["broj_karte"] = 3
@@ -467,10 +470,15 @@ class IzvestajiTest(unittest.TestCase):
 
         rezultat = izvestaji.izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(
             sve_karte,
-            {self.konkretan_let["sifra_konkretnog_leta"]: self.konkretan_let},
+            {self.konkretan_let["sifra"]: self.konkretan_let},
             {self.pun_let["broj_leta"]: self.pun_let}
 
         )
 
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
-        self.assertEqual(2, len(rezultat), msg="")
+        self.assertEqual(2, len(rezultat.values()), msg="")
+        for elem in rezultat.values():
+            if karta1["prodavac"] == elem[2]:
+                self.assertEqual(200, elem[1], msg="Lose izracunata ukupna cena")
+            else:
+                self.assertEqual(400, elem[1], msg="Lose izracunata ukupna cena")

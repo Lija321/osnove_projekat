@@ -117,32 +117,33 @@ def izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte: dict, svi_konk
         prodavac=karta['prodavac']
         if isinstance(prodavac ,dict): prodavac=prodavac['korisnicko_ime']
         if prodavac in ubc.keys(): #Ako prodavac nije predjen prvi put dodaj na akumulatore
-            ubc[prodavac]['broj']+=1
-            ubc[prodavac]['cena']+=cena
+            ubc[prodavac][0]+=1
+            ubc[prodavac][1]+=cena
         else:
-            ubc[prodavac]={'prodavac':prodavac,'broj':1,'cena':cena} #Ako je prvi put predjen dodaj ga u dict
+            ubc[prodavac]= [1,cena,prodavac] #Ako je prvi put predjen dodaj ga u dict
     return ubc
 
+    # noinspection PyUnreachableCode
     """
-    ubc={}
-    datum_granica = datetime.now()
-    datum_granica = datum_granica - timedelta(30)  # Granica je poslednjih 30 dana
-
-    for karta in sve_karte.values():
-        # "%d.%m.%Y."
-        prosledjen_datum=karta['datum_prodaje']
-        prosledjen_datum_datetime = datetime.strptime(karta['datum_prodaje'],
-                                                      "%d.%m.%Y.")  # iz nekog razloga se ovako prosledjuje datum
-        if prosledjen_datum_datetime < datum_granica: continue  # ako je pre granice preskoci
-        #sifra = karta['sifra_konkretnog_leta']
-        #konk_let = svi_konkretni_letovi[sifra]
-        #broj_leta = konk_let['broj_leta']
-        #let = svi_letovi[broj_leta]
-        #cena = let['cena']
-        if not prosledjen_datum in ubc.keys():
-            ubc[prosledjen_datum]=1
-        else:
-            ubc[prosledjen_datum] += 1
-
-    return ubc
-    """
+        ubc={}
+        datum_granica = datetime.now()
+        datum_granica = datum_granica - timedelta(30)  # Granica je poslednjih 30 dana
+    
+        for karta in sve_karte.values():
+            # "%d.%m.%Y."
+            prosledjen_datum=karta['datum_prodaje']
+            prosledjen_datum_datetime = datetime.strptime(karta['datum_prodaje'],
+                                                          "%d.%m.%Y.")  # iz nekog razloga se ovako prosledjuje datum
+            if prosledjen_datum_datetime < datum_granica: continue  # ako je pre granice preskoci
+            #sifra = karta['sifra_konkretnog_leta']
+            #konk_let = svi_konkretni_letovi[sifra]
+            #broj_leta = konk_let['broj_leta']
+            #let = svi_letovi[broj_leta]
+            #cena = let['cena']
+            if not prosledjen_datum in ubc.keys():
+                ubc[prosledjen_datum]=1
+            else:
+                ubc[prosledjen_datum] += 1
+    
+        return ubc
+        """

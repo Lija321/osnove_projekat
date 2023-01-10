@@ -115,7 +115,7 @@ def rand_valid_konkretan_let():
         "broj_leta": rand_str(4),
         "datum_i_vreme_polaska": rand_datetime(),
         "datum_i_vreme_dolaska": rand_datetime(),
-        "zauazetost": zauzetost}
+        "zauzetost": zauzetost}
 
 
 def gen_rand_valid_konkretan_let(num):
@@ -132,5 +132,5 @@ def rand_datetime_end(**kwargs):
     random_second = random.randrange(int_delta)
 
     date = start + datetime.timedelta(seconds=random_second)
-    dt = datetime.fdatetime.combine(date, datetime.datetime.min.time())
+    dt = datetime.datetime.combine(date, datetime.datetime.min.time()) #islo je datetirme.fdatetime i izbacivalo je gresku
     return dt

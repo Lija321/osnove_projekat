@@ -16,7 +16,7 @@ def kreiranje_modela_aviona(
     sledeci_id=sledeci_id_set(svi_modeli_aviona)
     model = {"id": sledeci_id, "naziv": naziv, "broj_redova": broj_redova, "pozicije_sedista": pozicija_sedista}
     svi_modeli_aviona[sledeci_id] = model
-    sacuvaj_modele_aviona('./fajlovi/modeli.csv',',',svi_modeli_aviona)
+    #sacuvaj_modele_aviona('./fajlovi/modeli.csv',',',svi_modeli_aviona)
     return svi_modeli_aviona
 
 sledeci_id=0

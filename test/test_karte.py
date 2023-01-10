@@ -69,7 +69,7 @@ class KarteTest(unittest.TestCase):
              "sifra_konkretnog_leta": 1234,
             "kupac": rand_str(10), # k ime od kupca
             "prodavac": rand_str(10),
-            "sediste": odabrano_sediste,
+            "sifra_sedista": odabrano_sediste,
             "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_i_vreme_polaska']),
             "obrisana": False
         }
@@ -96,7 +96,7 @@ class KarteTest(unittest.TestCase):
         letovi.podesi_matricu_zauzetosti(self.svi_letovi, konkretan_let)
 
         korisnik = {
-            "id": 123, 
+            "id": 123,
             "uloga": konstante.ULOGA_KORISNIK
         }
         prodavac = {
@@ -240,19 +240,19 @@ class KarteTest(unittest.TestCase):
             {
                 "broj_karte": 1,
                 "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
-                "sifra_konkretnog_leta": self.konkretan_let,
+                "konretni_let": self.konkretan_let,
                 "status": konstante.STATUS_NEREALIZOVANA_KARTA
             },
             {
                 "broj_karte": 1,
                 "putnici": [self.pun_korisnik, {"korisnicko_ime": rand_str(10)}],
-                "sifra_konkretnog_leta": self.konkretan_let,
+                "konretni_let": self.konkretan_let,
                 "status": konstante.STATUS_REALIZOVANA_KARTA
             },
             {
                 "broj_karte": 2,
                 "putnici": [{"korisnicko_ime": rand_str(10)}, {"korisnicko_ime": rand_str(10)}],
-                "sifra_konkretnog_leta": self.konkretan_let,
+                "konretni_let": self.konkretan_let,
                 "status": konstante.STATUS_NEREALIZOVANA_KARTA
             },
         ]
@@ -314,20 +314,21 @@ class KarteTest(unittest.TestCase):
 
     def testiraj_karte_fajl(self):
         odaberi_sediste = lambda : rand_seat(100, ord('H') - ord('A'))
+        prodavac = rand_valid_user()
+        prodavac["uloga"] = konstante.ULOGA_PRODAVAC
+        kupac = rand_valid_user()
         referentne_karte = {
             i: {
                 "broj_karte": i,
                 "sifra_konkretnog_leta": random.randint(1000, 10000),
-                "kupac": rand_str(10),  # k ime od kupca
-                "prodavac": rand_str(10),
+                "kupac": rand_valid_user(),  # k ime od kupca
+                "prodavac": prodavac,
                 "sediste": odaberi_sediste(),
-                "datum_prodaje": rand_datetime_end(end=self.konkretan_let['datum_i_vreme_polaska']),
+                "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_i_vreme_polaska']),
                 "obrisana": False,
-                "status": "",
-                "putnici": []
+                "putnici": [kupac] + [rand_valid_user() for _ in range(3)]
             } for i in range(100)
         }
-        print(referentne_karte)
         karte.sacuvaj_karte(referentne_karte, self.putanja, "|")
         ucitane_karte = karte.ucitaj_karte_iz_fajla(self.putanja, "|")
         self.assertIsNotNone(ucitane_karte, msg="Nisu učitane karte iz fajla")

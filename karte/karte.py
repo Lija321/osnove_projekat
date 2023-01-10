@@ -153,16 +153,27 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
         red[1]=red[1].replace('~',',')
         karta['putnici']=literal_eval(red[1])
         karta['sifra_konkretnog_leta']=int(red[2])
-        karta['status']=red[3]
+        if red[3]!="": karta['status']=red[3]
         red[4]=red[4].replace('~',',')
-        karta['kupac']=literal_eval(red[4])
+        try:
+            karta['kupac']=literal_eval(red[4])
+        except:
+            karta['kupac']=red[4]
         karta['obrisana']=literal_eval(red[5])
         if red[6]!='':
             karta['sediste']=red[6]
         if red[7]!='':
-            karta['datum_prodaje']=datetime.strptime(red[7], "%Y-%m-%d %H:%M:%S.%f")
-            karta['prodavac']=literal_eval(red[8].replace('~',','))
-
+            try:
+                karta['datum_prodaje']=datetime.strptime(red[7], "%Y-%m-%d %H:%M:%S.%f")
+            except:
+                try:
+                    karta['datum_prodaje'] = datetime.strptime(red[7], "%Y-%m-%d %H:%M:%S")
+                except:
+                    karta['datum_prodaje']=red[7]
+            try:
+                karta['prodavac']=literal_eval(red[8].replace('~',','))
+            except:
+                karta['prodavac'] = red[8]
         karte_ret[karta['broj_karte']]=karta
 
 
