@@ -788,14 +788,16 @@ def kreiranje_letova():
             vreme_poletanja=unesi("Vreme poletanja (hh:mm)(00-24)")
             if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',vreme_poletanja): raise Exception("Vreme poletanja uneto pogresno")
             vreme_poletanja=vreme_poletanja.split(':')
-            vreme_poletanja[0]=vreme_poletanja.zfill(2)
-            vreme_poletanja[1]=vreme_poletanja.zfill(2)
+            vreme_poletanja[0]=vreme_poletanja[0].zfill(2)
+            vreme_poletanja[1]=vreme_poletanja[1].zfill(2)
+            vreme_poletanja=':'.join(vreme_poletanja)
 
             vreme_sletanja = unesi("Vreme sletanja (hh:mm)(00-24)")
             if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$', vreme_sletanja): raise Exception("Vreme sletanja uneto pogresno")
             vreme_sletanja = vreme_sletanja.split(':')
-            vreme_sletanja[0] = vreme_sletanja.zfill(2)
-            vreme_sletanja[1] = vreme_sletanja.zfill(2)
+            vreme_sletanja[0] = vreme_sletanja[0].zfill(2)
+            vreme_sletanja[1] = vreme_sletanja[1].zfill(2)
+            vreme_sletanja=':'.join(vreme_sletanja)
 
             sletanje_sutra=unesi("Sletanje sutra (da/ne)").lower()
             if sletanje_sutra in da_ne_dict: sletanje_sutra=da_ne_dict[sletanje_sutra]
@@ -870,7 +872,6 @@ def kreiranje_letova():
             if unos == 'x': return
         except Exception as msg:
             print_exception(msg)
-    return
 
 
 def izmena_letova():
@@ -892,7 +893,7 @@ def izmena_letova():
         print("1. Pretrazi letove 1\n2. Izmeni let pomocu sifre 2\nx. Nazad x")
         unos=unesi('')
         if unos=='1':
-            pretraga_letova_submeni(kupovina=True)
+            pretrazi_nekonkretne_letove()
             continue
         elif unos=='2':
             break
@@ -910,18 +911,36 @@ def izmena_letova():
             if  not broj_leta in svi_letovi.keys(): raise Exception("Let ne postoji")
 
             sifra_polazisnog_aerodroma = unesi("Polazisni aerodrom").upper()
+            if not re.match('^[A-Z]{3}$', sifra_polazisnog_aerodroma): raise Exception(
+                "Greska u unosu polazisnog aerodroma")
             sifra_odredisnog_aerodroma = unesi("Odredisni aerodrom").upper()
+            if not re.match('^[A-Z]{3}$', sifra_odredisnog_aerodroma): raise Exception(
+                "Greska u unosu odredinosg aerodroma")
 
             vreme_poletanja = unesi("Vreme poletanja (hh:mm)(00-24)")
+            if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$', vreme_poletanja): raise Exception(
+                "Vreme poletanja uneto pogresno")
+            vreme_poletanja = vreme_poletanja.split(':')
+            vreme_poletanja[0] = vreme_poletanja[0].zfill(2)
+            vreme_poletanja[1] = vreme_poletanja[1].zfill(2)
+            vreme_poletanja = ':'.join(vreme_poletanja)
+
             vreme_sletanja = unesi("Vreme sletanja (hh:mm)(00-24)")
+            if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$', vreme_sletanja): raise Exception(
+                "Vreme sletanja uneto pogresno")
+            vreme_sletanja = vreme_sletanja.split(':')
+            vreme_sletanja[0] = vreme_sletanja[0].zfill(2)
+            vreme_sletanja[1] = vreme_sletanja[1].zfill(2)
+            vreme_sletanja = ':'.join(vreme_sletanja)
 
             sletanje_sutra = unesi("Sletanje sutra (da/ne)").lower()
-            if sletanje_sutra in sletanje_sutra_dict:
-                sletanje_sutra = sletanje_sutra_dict[sletanje_sutra]
+            if sletanje_sutra in da_ne_dict:
+                sletanje_sutra = da_ne_dict[sletanje_sutra]
             else:
                 raise Exception('Sletanje sutra pogresno uneto')
 
             prevoznik = unesi("Prevoznik")
+
             dani = unesi('Dani [pon,uto,sre,cet,pet,sub,ned]').lower()
             dani = dani.split(',')
             if len(dani) != len(list(set(dani))): raise Exception("Dani se ponavljaju")
@@ -929,10 +948,18 @@ def izmena_letova():
                 if not dani[i] in dan_to_const.keys(): raise Exception(f"Greska u unosenju dana >> {dani[i]}!")
                 dani[i] = dan_to_const[dani[i]]
 
-            model = int(unesi("Id modela aviona"))
-            model = svi_modeli[model]
+            model = unesi("Id modela aviona")
+            if model.isnumeric() and int(model) in svi_modeli.keys():
+                model = int(model)
+                model = svi_modeli[model]
+            else:
+                raise Exception('Greska u unosu modela')
 
-            cena = float(unesi("Cena"))
+            cena = unesi("Cena")
+            if cena.isnumeric():
+                cena = float(cena)
+            else:
+                raise Exception("Greska u unosu cene")
 
             datum_pocetka_operativnosti = unesi('Datum pocetka operativnosti (dd.mm.yyyy)')
             try:
@@ -953,12 +980,21 @@ def izmena_letova():
                                                  datum_pocetka_operativnosti, datum_kraja_operativnosti)
 
             novi_svi_konkretni_letovi={}
+            letovi_sa_kartama=list_to_dict(sve_karte.values(),'sifra_konkretnog_leta')
             for sifra,let in svi_konkretni_letovi.items():#Brise stare
-                if not let['broj_leta']==broj_leta: novi_svi_konkretni_letovi[sifra]=let
+                if not let['broj_leta']==broj_leta or sifra in letovi_sa_kartama.keys(): novi_svi_konkretni_letovi[sifra]=let
 
             svi_konkretni_letovi=copy(novi_svi_konkretni_letovi)
             svi_konkretni_letovi = konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, #Pravi nove
                                                                               svi_letovi[broj_leta])
+
+            for let,sifra in svi_konkretni_letovi.items():
+                if let in letovi_sa_kartama.values() and not sifra in letovi_sa_kartama.keys():
+                    del svi_konkretni_letovi[sifra]
+
+            for let in svi_konkretni_letovi.values():
+                if not 'zauzetost' in let.keys():
+                    letovi.podesi_matricu_zauzetosti(svi_letovi,let)
             sacuvaj_sve()
             cls()
             return
@@ -975,6 +1011,65 @@ def izmena_letova():
         except Exception as msg:
             print(msg)
     return
+
+def pretrazi_nekonkretne_letove():
+    filteri_unos = {
+        '1': "",
+        '2': "",
+        '3': "",
+        '4': "",
+        '5': "",
+        '6': "",
+        '7': ""
+    }
+    filteri_poruka = [
+        'Polaziste',
+        'Odrediste',
+        'Vreme poletanja (hh:mm)',
+        'Vreme sletanja (hh:mm)',
+        'Prevoznik'
+    ]
+    while True:
+        try:
+            print("\nCtrl-C za nov pokusaj")
+            print('Odaberite filtere:')
+            print('1. Polaziste 1\n2. Odrediste 2')
+            print('3. Vreme poletanja 3\n4. Vreme sletanja 4\n5. Prevoznik 5\nx. Nazad x')
+            odabrani_filteri = unesi("Odaberite filtere npr[134]")
+            if 'x' in odabrani_filteri: return
+            odabrani_filteri = remove_duplicate(odabrani_filteri)
+
+            for x in odabrani_filteri:
+                if not x in filteri_unos.keys(): raise Exception(f"Greska u odabiru filtera {x}")
+
+            for x in odabrani_filteri:
+                if not x in filteri_unos.keys(): raise Exception(f'Odabran nevalidan filter {x}')
+                filteri_unos[x] = unesi(filteri_poruka[int(x) - 1])
+
+
+            pretrazeni_letovi = letovi.pretraga_letova(svi_letovi, svi_konkretni_letovi,
+                                                       filteri_unos['1'].upper(),
+                                                       filteri_unos['2'].upper(),
+                                                       filteri_unos['3'],
+                                                       filteri_unos['4'],
+                                                       filteri_unos['5'],
+                                                       filteri_unos['6'],
+                                                       filteri_unos['7'])
+            letovi_za_prikaz={}
+            for x in pretrazeni_letovi:
+                letovi_za_prikaz[x['broj_leta']]=svi_letovi[x['broj_leta']]
+            letovi_za_prikaz=letovi_za_prikaz.values()
+            prikaz_letova(letovi_za_prikaz)
+
+            #prikaz_konkretnih_letova(pretrazeni_letovi, svi_letovi)
+
+            return
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as msg:
+            print(msg)
+
 
 def brisanje_karata_admin():
     try:
@@ -1329,10 +1424,10 @@ def ubc_izvestak_30_dana():
     izvestaj_30_dana=izvestaji.izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte,svi_konkretni_letovi,svi_letovi)
     izvestaji_format_za_prikaz=[]
     formatiranje=['Prodavac','Broj','Cena']
-    keys=['prodavac','broj','cena']
-    for izvestaj in izvestaj_30_dana.values():
-        izvestaji_format_za_prikaz.append(dict_to_list(izvestaj,keys))
-    tabelarni_prikaz(izvestaji_format_za_prikaz,formatiranje)
+    #keys=['prodavac','broj','cena']
+    #for izvestaj in izvestaj_30_dana.values():
+    #    izvestaji_format_za_prikaz.append(dict_to_list(izvestaj,keys))
+    tabelarni_prikaz(izvestaj_30_dana.values(),formatiranje)
 
 def neulogovan_meni():
     neulogovan_meni_dict={
