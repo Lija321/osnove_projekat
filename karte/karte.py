@@ -113,6 +113,8 @@ Kao rezultat se vraća nova kolekcija svih karata. Baca grešku ako podaci nisu 
 def brisanje_karte(korisnik: dict, sve_karte: dict, broj_karte: int) -> dict:
     if not (korisnik['uloga']==common.konstante.ULOGA_ADMIN or korisnik['uloga']==common.konstante.ULOGA_PRODAVAC):
         raise Exception("Nema dozvolu da brise karte")
+    if not broj_karte in sve_karte.keys():
+        raise Exception("Karta ne postoji")
     if korisnik['uloga']==common.konstante.ULOGA_ADMIN: #Akoje admin brise se
         del sve_karte[broj_karte]
     else: #Ako nije onda je prodavac postavlja se na brisanje

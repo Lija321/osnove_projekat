@@ -216,7 +216,7 @@ CHECKPOINT2: Baca grešku sa porukom ako podaci nisu validni.
 def kreiranje_letova(svi_letovi : dict, broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                      vreme_poletanja: str, vreme_sletanja: str, sletanje_sutra: bool, prevoznik: str,
                      dani: list, model: dict, cena: int,datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime):
-
+    if broj_leta in svi_letovi.keys(): raise Exception('Let vec postoji')
 
     let = {"broj_leta": broj_leta, "sifra_polazisnog_aerodroma": sifra_polazisnog_aerodroma,
            "sifra_odredisnog_aerodorma": sifra_odredisnog_aerodorma,

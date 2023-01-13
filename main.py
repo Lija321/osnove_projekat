@@ -13,6 +13,7 @@ import os
 import platform
 from ast import literal_eval
 import re
+import readline
 
 from datetime import datetime,timedelta
 
@@ -28,7 +29,7 @@ svi_modeli=model_aviona.ucitaj_modele_aviona('./fajlovi/modeli.csv',',')
 
 
 def sacuvaj_sve():
-    if len(sys.argv)>1 and sys.argv[1]=='--test':
+    if '--test' in sys.argv:
         return
     letovi.sacuvaj_letove('./fajlovi/letovi.csv',',',svi_letovi)
     konkretni_letovi.sacuvaj_kokretan_let('./fajlovi/konkretni_letovi.csv',',',svi_konkretni_letovi)
@@ -60,7 +61,16 @@ def prijava():
         return
 def izlazak():
     sacuvaj_sve()
-    print("Doviđenja!!!")
+    #print("Doviđenja!!!")
+    msg='''
+  ____             _     _  _             _       _ _ _ 
+ |  _ \  _____   _(_) __| |(_) ___ _ __  (_) __ _| | | |
+ | | | |/ _ \ \ / / |/ _` || |/ _ \ '_ \ | |/ _` | | | |
+ | |_| | (_) \ V /| | (_| || |  __/ | | || | (_| |_|_|_|
+ |____/ \___/ \_/ |_|\__,_|/ |\___|_| |_|/ |\__,_(_|_|_)
+                         |__/          |__/             
+    '''
+    print(msg)
     sys.exit()
 
 def registracija(checkin=False):
@@ -447,9 +457,9 @@ def check_in_konkretnog_korisnika(sifra):
         korisnicki_za_proveri = karta['putnici'][0]
         korisnicko_ime=korisnicki_za_proveri['korisnicko_ime']
         while True:
-            if korisnicki_za_proveri['pasos'] == '':
+            if korisnicki_za_proveri['$'] == '':
                 pasos = unesi("Pasos")
-                if not re.match('[0-9]{9}', pasos):
+                if not re.match('^[0-9]{9}$', pasos):
                     print("Pasos pogresno unet")
                     continue
                 svi_korisnici[korisnicko_ime]['pasos']=pasos
@@ -650,7 +660,7 @@ def odjava():
     cls()
     return
 
-def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False):
+def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False,brisanje=False):
     filteri_unos = {
         '1': "",
         '2': "",
@@ -701,6 +711,8 @@ def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False):
                                                        filteri_unos['4'],
                                                        filteri_unos['5'])
 
+            if not brisanje:
+                pretrazene_karte = [x for x in pretrazene_karte if x['obrisana'] == False]
             if checkin:
                 pretrazene_karte=[x for x in pretrazene_karte if x['status']==konstante.STATUS_NEREALIZOVANA_KARTA]
             prikaz_karata(pretrazene_karte,svi_letovi,svi_konkretni_letovi,True,True)
@@ -721,6 +733,8 @@ def registracija_novih_prodavaca_submeni():
         try:
             print("\nCtrl-C za unosenje ispocetka")
             korisnicko_ime = unesi("Korisnicko ime")
+            if ' ' in korisnicko_ime:
+                raise Exception("Nedozovljen znak \' \'(space) u korisnickom imednu")
             lozinka = unesi("Lozinka")
             ime = unesi("Ime")
             prezime = unesi("Prezime")
@@ -767,10 +781,21 @@ def kreiranje_letova():
             broj_leta = unesi("Broj leta").upper()
 
             sifra_polazisnog_aerodroma = unesi("Polazisni aerodrom").upper()
+            if not re.match('^[A-Z]{3}$',sifra_polazisnog_aerodroma): raise Exception("Greska u unosu polazisnog aerodroma")
             sifra_odredisnog_aerodroma = unesi("Odredisni aerodrom").upper()
+            if not re.match('^[A-Z]{3}$',sifra_odredisnog_aerodroma): raise Exception("Greska u unosu odredinosg aerodroma")
 
             vreme_poletanja=unesi("Vreme poletanja (hh:mm)(00-24)")
+            if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',vreme_poletanja): raise Exception("Vreme poletanja uneto pogresno")
+            vreme_poletanja=vreme_poletanja.split(':')
+            vreme_poletanja[0]=vreme_poletanja.zfill(2)
+            vreme_poletanja[1]=vreme_poletanja.zfill(2)
+
             vreme_sletanja = unesi("Vreme sletanja (hh:mm)(00-24)")
+            if not re.match('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$', vreme_sletanja): raise Exception("Vreme sletanja uneto pogresno")
+            vreme_sletanja = vreme_sletanja.split(':')
+            vreme_sletanja[0] = vreme_sletanja.zfill(2)
+            vreme_sletanja[1] = vreme_sletanja.zfill(2)
 
             sletanje_sutra=unesi("Sletanje sutra (da/ne)").lower()
             if sletanje_sutra in da_ne_dict: sletanje_sutra=da_ne_dict[sletanje_sutra]
@@ -785,10 +810,16 @@ def kreiranje_letova():
                 if not dani[i] in dan_to_const.keys(): raise Exception(f"Greska u unosenju dana >> {dani[i]}!")
                 dani[i]=dan_to_const[dani[i]]
 
-            model=int(unesi("Id modela aviona"))
-            model=svi_modeli[model]
+            model=unesi("Id modela aviona")
+            if model.isnumeric() and int(model) in svi_modeli.keys():
+                model=int(model)
+                model=svi_modeli[model]
+            else:
+                raise Exception('Greska u unosu modela')
 
-            cena=float(unesi("Cena"))
+            cena=unesi("Cena")
+            if cena.isnumeric(): cena=float(cena)
+            else: raise Exception("Greska u unosu cene")
 
             datum_pocetka_operativnosti=unesi('Datum pocetka operativnosti (dd.mm.yyyy)')
             try:
@@ -838,7 +869,7 @@ def kreiranje_letova():
             unos = unesi('')
             if unos == 'x': return
         except Exception as msg:
-            print(msg)
+            print_exception(msg)
     return
 
 
@@ -953,14 +984,17 @@ def brisanje_karata_admin():
             karte_za_brisanje=[x for x in sve_karte.values() if x['obrisana']==True]
             prikaz_karata(karte_za_brisanje,svi_letovi,svi_konkretni_letovi,True)
             karte_za_brisanje=list_to_dict(karte_za_brisanje,'broj_karte')
-
+            if karte_za_brisanje=={}:
+                cls()
+                print("Nema karata za brisanje")
+                return
             nazad = False
             while True:
                 karta_za_brisanje = unesi("Sifra karte za brisanje (x za nazad)")
                 if karta_za_brisanje.lower() == 'x':
                     nazad = True
                     break
-                if not karta_za_brisanje.isnumeric() or not int(karta_za_brisanje) in sve_karte.keys():
+                if not karta_za_brisanje.isnumeric() or not int(karta_za_brisanje) in karte_za_brisanje.keys():
                     print("Greska u unosu karte")
                     continue
                 break
@@ -996,6 +1030,9 @@ def brisanje_karata_prodavac():
                     break
                 if nazad: continue
                 karta_za_brisanje=int(karta_za_brisanje)
+                if not karta_za_brisanje in sve_karte.keys() or sve_karte[karta_za_brisanje]['obrisana']==True:
+                    print('Greska u unosu hrane')
+                    continue
                 sve_karte=karte.brisanje_karte(aktivni_korisnik,sve_karte,karta_za_brisanje)
                 sacuvaj_sve()
 
