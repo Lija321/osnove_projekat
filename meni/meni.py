@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 from common import konstante
 from collections import OrderedDict
@@ -33,8 +34,10 @@ def print_sedista(matrica,pozicija_sedista):
         ispis_reda=f'Red {br_reda+1:>{centriranje_broja_red}}: {sedista_ispis}'
         print(ispis_reda)
 def print_exception(msg):
-    print(msg.__class__.__name__, msg)
-
+    if '--debug' in sys.argv:
+        print(msg.__class__.__name__, msg)
+    else:
+        print(msg)
 def cls():
     if platforma_var=="Windows":os.system('cls')
     elif platforma_var=="Linux":os.system("clear")
@@ -86,10 +89,9 @@ def prikaz_letova(letovi):
 
 def prikaz_konkretnih_letova(letovi,svi_letovi):
     formatiranje = ['Sifra leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
-                    'Sletanje sutra',
                     'Prevoznik', 'Cena', 'Datum polaska', 'Datum dolaska']
     keys = ['sifra', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
-            'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik',
+            'vreme_poletanja', 'vreme_sletanja','prevoznik',
             'cena', 'datum_i_vreme_polaska', 'datum_i_vreme_dolaska']
 
 
@@ -195,11 +197,7 @@ def konkretan_let_format_za_prikaz(konkreatan_let,keys,svi_letovi):
     lista_leta = dict_to_list(let_formatiran, keys)
     return lista_leta
 
-def hasRepeatedChars(s):
-    for i in xrange(len(s)):
-        if i != s.rfind(s[i]):
-            return True
-    return False
+
 
 def remove_duplicate(s):
     return "".join(OrderedDict.fromkeys(s))

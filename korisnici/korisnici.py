@@ -6,7 +6,7 @@ def proveri_pasos(pasos):
     pasos = str(pasos)
     if pasos=="": return False, ""
     if not all(x.isdigit() for x in pasos):#Ako se desi da jedan znak nije cifra
-        return True, "Pasoš nebrojevni string"
+        return True, "Pasoš nebrojevni unos"
     if len(pasos) > 9:
         return True, "Pasoš više od 9 cifara"
     if len(pasos) < 9:
@@ -25,12 +25,15 @@ def proveri_telefon(telefon):
 def proveri_email(unos):
     email,uloga=unos
     if not uloga==konstante.ULOGA_KORISNIK: return False,""
+    if ' ' in email: return True,'Ima [space] u mejlu'
     if not '@' in email:
         return True, "Email fali @"
     email = email.split('@')
     email = email[1]
     if email.count('.') != 1:#Ako ima vise poddomena, odnsno tacaka na kraju
-        return True, "Email provera sa @ ali sa više poddomena"
+        return True, "Email provera greska u podomenima"
+    email=email.split('.')
+    if email[0]=='' or email[1]=='': return True,'Domen ili poddomen prazan'
     return False, ""
 
 
