@@ -1,4 +1,0 @@
-izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima test ocekuje pogresan izlaz
-kako kupiti karte iz menija
-izmena karte
-gde se cuva zauzetost

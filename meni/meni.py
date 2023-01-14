@@ -85,6 +85,10 @@ def prikaz_letova(letovi):
 
     centriranje = [15] * 9
     centriranje[7] = 27
+    centriranje[0]=12
+    centriranje[1]=13
+    centriranje[2]=13
+    centriranje[8]=10
     tabelarni_prikaz(podaci, formatiranje, centriranje)
 
 def prikaz_konkretnih_letova(letovi,svi_letovi):

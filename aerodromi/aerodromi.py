@@ -59,3 +59,12 @@ def ucitaj_aerodrom(putanja: str, separator: str) -> dict:
         svi_aerodromi[aerodrom['skracenica']]=aerodrom
 
     return svi_aerodromi
+
+if __name__=='__main__':
+    svi_aerodromi=ucitaj_aerodrom('./aerodrom.csv',',')
+    svi_aerodromi=kreiranje_aerodroma(svi_aerodromi,
+                                      'TKY',
+                                      'Tokyo Airport',
+                                      'Tokijo',
+                                      'Japan')
+    sacuvaj_aerodrome('./aerodrom.csv',',',svi_aerodromi)

@@ -26,6 +26,7 @@ svi_konkretni_letovi=konkretni_letovi.ucitaj_konkretan_let('./fajlovi/konkretni_
 sve_karte=karte.ucitaj_karte_iz_fajla('./fajlovi/karte.csv',',')
 svi_korisnici=korisnici.ucitaj_korisnike_iz_fajla('./fajlovi/korisnici.csv',',')
 svi_modeli=model_aviona.ucitaj_modele_aviona('./fajlovi/modeli.csv',',')
+svi_aeorodromi=aerodromi.ucitaj_aerodrom('./fajlovi/aerodrom.csv',',')
 
 
 def sacuvaj_sve():

@@ -1,5 +1,20 @@
-JU50,1500.0,[0],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},AirSerbi,NYC,BEG,False,12:00,23:00
-AA20,1500.0,[1],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},WizzAir,TOR,NYC,False,00:00,12:00
-WD43,1000.0,[1],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 2~ 'naziv': 'Boing-644'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},RyanAir,LON,TOR,False,14:00,22:00
-FA22,1500.0,[1~ 4~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 2~ 'naziv': 'Boing-644'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},SwissAir,VIE,PAR,False,01:00,03:00
-PO54,150.0,[1~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},AirGermany,BEG,MUN,False,09:00,11:00
+DT50,700.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},Emirates,TKY,DXB,False,11:00,22:00
+TD05,800.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},Emirates,DXB,TKY,False,13:00,23:00
+LS00,450.0,[1~ 3],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 2~ 'naziv': 'Boing-644'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},WizzAir,SAO,LIS,False,13:00,23:00
+SL11,780.0,[2~ 4],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},WizzAir,LIS,SAO,False,01:00,11:00
+NT21,320.0,[0~ 1~ 2~ 3~ 4~ 5~ 6],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},Delta,TOR,NYC,False,16:00,18:00
+TN12,120.0,[0~ 1~ 2~ 3~ 4~ 5~ 6],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},Delta,NYC,TOR,False,12:00,13:50
+BD71,430.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},WizzAir,DXB,BEG,False,08:00,10:00
+DB17,430.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},WizzAir,BEG,DXB,False,12:00,14:00
+YL11,1200.0,[0~ 1~ 2~ 3~ 4~ 5~ 6],2023-05-01 00:00:00,2023-03-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},RyanAir,LON,NYC,False,15:00,23:00
+LY11,1200.0,[0~ 1~ 2~ 3~ 4~ 5~ 6],2023-05-01 00:00:00,2023-03-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},RyanAir,NYC,LON,False,01:00,07:00
+VB26,220.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},WizzAir,BEG,VIE,False,04:00,06:00
+BV62,220.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},WizzAir,VIE,BEG,False,06:00,07:20
+LV37,120.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},RyanAir,VIE,LIS,False,11:00,14:00
+VL73,220.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},RyanAir,LIS,VIE,False,20:00,22:00
+LN49,900.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},RyanAir,NYC,LIS,True,23:00,10:00
+NL94,900.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 0~ 'naziv': 'Boing-747'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D'~ 'E'~ 'F']},RyanAir,LIS,NYC,False,15:00,23:00
+LP47,60.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},WizzAir,PAR,LON,False,12:00,14:00
+PL74,60.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-01-01 00:00:00,{'id': 1~ 'naziv': 'Boing-777'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C']},WizzAir,LON,PAR,False,10:00,12:00
+PV42,90.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-03-01 00:00:00,{'id': 2~ 'naziv': 'Boing-644'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},RyanAir,VIE,PAR,False,19:00,21:00
+VP24,90.0,[0~ 2~ 5],2023-05-01 00:00:00,2023-03-01 00:00:00,{'id': 2~ 'naziv': 'Boing-644'~ 'broj_redova': 20~ 'pozicije_sedista': ['A'~ 'B'~ 'C'~ 'D']},RyanAir,PAR,VIE,False,17:00,18:45
