@@ -14,7 +14,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: datetime)->lis
 def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: date):
     izvestaj_ret = []
     # Prolazak kroz karte, ako je trazeni dan polaska isti kao na karti -> dodaj tu kartu
-    for karta in sve_karte.values():
+    for  karta in sve_karte.values():
         sifra=karta['sifra_konkretnog_leta']
         let=svi_konkretni_letovi[sifra]
         if let['datum_i_vreme_polaska'].date() == dan:
@@ -25,7 +25,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: dat
     izvestaj_ret = []
     # Prolazak kroz karte, ako je trazeni dan isti kao na karti i prodavac isti -> dodaj tu kartu
     for karta in sve_karte.values():
-        if karta['prodavac']==prodavac:
+        if 'prodavac' in karta.keys() and karta['prodavac']==prodavac:
             if 'datum_prodaje' in karta.keys():
                 if isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan:
                     izvestaj_ret.append(karta)
@@ -43,14 +43,15 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje(
     cena=0
     # Prolazak kroz karte, ako je trazeni dan isti kao na karti -> dodaj na akumulatore trazene parametre
     for karta in sve_karte.values():
-        if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
-                (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan):
-            broj+=1
-            sifra = karta['sifra_konkretnog_leta']
-            konk_let = svi_konkretni_letovi[sifra]
-            broj_leta=konk_let['broj_leta']
-            let=svi_letovi[broj_leta]
-            cena+=let['cena']
+        if 'datum_prodaje' in karta.keys():
+            if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
+                    (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan):
+                broj+=1
+                sifra = karta['sifra_konkretnog_leta']
+                konk_let = svi_konkretni_letovi[sifra]
+                broj_leta=konk_let['broj_leta']
+                let=svi_letovi[broj_leta]
+                cena+=let['cena']
     return broj,cena
 
 
@@ -79,16 +80,17 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, svi_
     broj = 0
     cena = 0
     for karta in sve_karte.values():
-        # Prolazak kroz karte, ako je trazeni dan isti kao na karti i prodavac -> dodaj na akumulatore trazene parametre
-        if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
-                (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan) \
-                and karta['prodavac']==prodavac:
-            broj += 1
-            sifra = karta['sifra_konkretnog_leta']
-            konk_let = svi_konkretni_letovi[sifra]
-            broj_leta = konk_let['broj_leta']
-            let = svi_letovi[broj_leta]
-            cena += let['cena']
+        if 'datum_prodaje' in karta.keys() and 'prodavac' in karta.keys():
+            # Prolazak kroz karte, ako je trazeni dan isti kao na karti i prodavac -> dodaj na akumulatore trazene parametre
+            if (isinstance(karta['datum_prodaje'],datetime) and karta['datum_prodaje'].date()==dan) or \
+                    (isinstance(karta['datum_prodaje'],date) and karta['datum_prodaje']==dan) \
+                    and karta['prodavac']==prodavac:
+                broj += 1
+                sifra = karta['sifra_konkretnog_leta']
+                konk_let = svi_konkretni_letovi[sifra]
+                broj_leta = konk_let['broj_leta']
+                let = svi_letovi[broj_leta]
+                cena += let['cena']
     return broj, cena
 
 """

@@ -107,7 +107,7 @@ def registracija(checkin=False):
             linija()
             print('1. Kreni ispocetka [enter]\nx. Nazad x')
             unos=unesi('')
-            if unos=='x': return
+            if unos.lower()=='x': return
             continue
         except Exception as msg:
             print(msg)
@@ -264,7 +264,7 @@ def kupovina_karata_submeni():
                 continue
             elif unos=='2':
                 kupovina_karte(prodaja)
-            elif unos=='x':
+            elif unos.lower()=='x':
                 return
             else:
                 print("Odabrana nepostojuca opcija")
@@ -371,7 +371,7 @@ def kupovina_karte(prodaja=False):
                 elif unos=='2':
                     kupovin_karte_za_povezan_let(putnici,sifra_leta,kupac,prodaja)
                     return
-                elif unos=='x':
+                elif unos.lower()=='x':
                     return
 
         except KeyboardInterrupt:
@@ -530,7 +530,7 @@ def check_in_korisnik(povezujuc=False,prodavac=False,**kwargs):
                     return
 
                 sifra=unesi("Sifra (x-nazad)")
-                if sifra=='x': return
+                if sifra.lower()=='x': return
                 if not sifra.isnumeric() or not int(sifra) in dozvoljene_karte.keys():
                     print("Sifra pogresno uneta")
                     continue
@@ -547,7 +547,7 @@ def check_in_korisnik(povezujuc=False,prodavac=False,**kwargs):
                     return
 
                 sifra=unesi("Sifra (x-nazad)")
-                if sifra=='x': return
+                if sifra.lower()=='x': return
                 if not sifra.isnumeric() or not int(sifra) in dozvoljene_karte.keys():
                     print("Sifra pogresno uneta")
                     continue
@@ -897,7 +897,7 @@ def izmena_letova():
             continue
         elif unos=='2':
             break
-        elif unos=='x':
+        elif unos.lower()=='x':
             return
         else:
             print("Odabrana nepostojuca opcija")
@@ -1168,7 +1168,7 @@ def izmena_karte():
             continue
         elif unos=='2':
             break
-        elif unos=='x':
+        elif unos.lower()=='x':
             return
         else:
             print("Odabrana nepostojuca opcija")
@@ -1289,6 +1289,7 @@ def izvestavanje_submeni():
     }
 
     while True:
+        print('')
         for i,msg in opcije_print.items():
             print(f'{i}. {msg} {i}')
 
@@ -1298,7 +1299,6 @@ def izvestavanje_submeni():
             opcije_fun[user_input]()
             if user_input == 'x':
                 return
-            return
 
         else:
             print("Odabrali ste nepostojeću opciju")
@@ -1419,14 +1419,14 @@ def ubc_izvestaj_dan_prodaje_i_prodavac():
         except KeyboardInterrupt:
             return
         except Exception as msg:
-            print(msg)
+            print_exception(msg)
 def ubc_izvestak_30_dana():
     izvestaj_30_dana=izvestaji.izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte,svi_konkretni_letovi,svi_letovi)
     izvestaji_format_za_prikaz=[]
     formatiranje=['Prodavac','Broj','Cena']
-    #keys=['prodavac','broj','cena']
-    #for izvestaj in izvestaj_30_dana.values():
-    #    izvestaji_format_za_prikaz.append(dict_to_list(izvestaj,keys))
+    for key,row in izvestaj_30_dana.items():
+        new_row=[row[2],row[0],row[1]]
+        izvestaj_30_dana[key]=new_row
     tabelarni_prikaz(izvestaj_30_dana.values(),formatiranje)
 
 def neulogovan_meni():
