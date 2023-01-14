@@ -1,3 +1,5 @@
+#!/bin/python3
+
 from common import konstante
 from izvestaji import izvestaji
 from karte import karte
@@ -298,9 +300,11 @@ def kupovina_karte(prodaja=False):
                 continue
 
             sifra_leta=int(sifra_leta)
-            if not sifra_leta in svi_konkretni_letovi.keys() or \
-                    not svi_konkretni_letovi[sifra_leta]['datum_i_vreme_polaska']>datetime.now():
+            if not sifra_leta in svi_konkretni_letovi.keys():
                 print("Nepostojeca sifra")
+                continue
+            elif not svi_konkretni_letovi[sifra_leta]['datum_i_vreme_polaska']>datetime.now():
+                print("Let prosao")
                 continue
             ima_li_slobodnih(sifra_leta)
 
@@ -352,7 +356,11 @@ def kupovina_karte(prodaja=False):
                             continue
                         break
                     putnik=svi_korisnici[ime]
-                    putnici.append(putnik)
+                    if not putnik in putnici:
+                        putnici.append(putnik)
+                    else:
+                        print("Putnik vec dodat")
+                        continue
                     slobodna_mesta = svi_konkretni_letovi[sifra_leta]['zauzetost']
                     if not prodaja:
                         karta,sve_karte = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_leta,
@@ -458,7 +466,7 @@ def check_in_konkretnog_korisnika(sifra):
         korisnicki_za_proveri = karta['putnici'][0]
         korisnicko_ime=korisnicki_za_proveri['korisnicko_ime']
         while True:
-            if korisnicki_za_proveri['$'] == '':
+            if korisnicki_za_proveri['pasos'] == '':
                 pasos = unesi("Pasos")
                 if not re.match('^[0-9]{9}$', pasos):
                     print("Pasos pogresno unet")
@@ -508,7 +516,7 @@ def check_in_korisnik(povezujuc=False,prodavac=False,**kwargs):
             unos = unesi('')
             if unos == '1':
                 if not prodavac:
-                    pregled_nerez_karata()
+                    pretraga_prodatih_karata_submeni(False,True,False,True)
                 else:
                     pretraga_prodatih_karata_submeni(prodaja=True,checkin=True)
                 break
@@ -661,7 +669,7 @@ def odjava():
     cls()
     return
 
-def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False,brisanje=False):
+def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False,brisanje=False,korisnik=False):
     filteri_unos = {
         '1': "",
         '2': "",
@@ -716,6 +724,8 @@ def pretraga_prodatih_karata_submeni(prodaja=False,checkin=False,brisanje=False)
                 pretrazene_karte = [x for x in pretrazene_karte if x['obrisana'] == False]
             if checkin:
                 pretrazene_karte=[x for x in pretrazene_karte if x['status']==konstante.STATUS_NEREALIZOVANA_KARTA]
+            if korisnik:
+                pretrazene_karte=[x for x in pretrazene_karte if x['putnici'][0]==aktivni_korisnik]
             prikaz_karata(pretrazene_karte,svi_letovi,svi_konkretni_letovi,True,True)
 
             if prodaja: return
@@ -803,6 +813,8 @@ def kreiranje_letova():
             sletanje_sutra=unesi("Sletanje sutra (da/ne)").lower()
             if sletanje_sutra in da_ne_dict: sletanje_sutra=da_ne_dict[sletanje_sutra]
             else: raise Exception('Sletanje sutra pogresno uneto')
+
+            if not sletanje_sutra and vreme_sletanja>vreme_poletanja: raise Exception("Greska u vremenu sletanja")
 
             prevoznik=unesi("Prevoznik")
 
@@ -939,6 +951,8 @@ def izmena_letova():
                 sletanje_sutra = da_ne_dict[sletanje_sutra]
             else:
                 raise Exception('Sletanje sutra pogresno uneto')
+
+            if not sletanje_sutra and vreme_sletanja>vreme_poletanja: raise Exception("Greska u vremenu sletanja")
 
             prevoznik = unesi("Prevoznik")
 

@@ -74,7 +74,7 @@ def tabelarni_prikaz(podaci, formatiranje, centriranje=15):
         linija(len(red)-1,'-')
 
 def prikaz_letova(letovi):
-    formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja', 'Sletanje sutra',
+    formatiranje = ['Broj leta', 'Polaziste', 'Odrediste', 'Vreme poletanja', 'Vreme sletanja', 'Sletanje sutra',
                     'Prevoznik', 'Dani leta', 'Cena']
     keys = ['broj_leta', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
             'vreme_poletanja', 'vreme_sletanja', 'sletanje_sutra', 'prevoznik', 'dani', 'cena']
@@ -92,7 +92,7 @@ def prikaz_letova(letovi):
     tabelarni_prikaz(podaci, formatiranje, centriranje)
 
 def prikaz_konkretnih_letova(letovi,svi_letovi):
-    formatiranje = ['Sifra leta', 'Polaziste', 'Odrediste', 'Vreme sletanja', 'Vreme poletanja',
+    formatiranje = ['Sifra leta', 'Polaziste', 'Odrediste', 'Vreme poletanja', 'Vreme sletanja',
                     'Prevoznik', 'Cena', 'Datum polaska', 'Datum dolaska']
     keys = ['sifra', 'sifra_polazisnog_aerodroma', 'sifra_odredisnog_aerodorma',
             'vreme_poletanja', 'vreme_sletanja','prevoznik',
@@ -112,7 +112,7 @@ def prikaz_karata(karte,svi_letovi,svi_konkretni_letovi,checkin=False,sediste=Fa
                     'Vreme poletanja',
                     'Vreme sletanja',
                     'Datum poletanja',
-                    'Datum Sletanja']
+                    'Datum sletanja']
     keys = ['broj_karte',
             'sifra_polazisnog_aerodroma',
             'sifra_odredisnog_aerodorma',
